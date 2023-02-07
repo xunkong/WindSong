@@ -1,0 +1,49 @@
+# This workflow will build a .NET project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
+
+name: Build and Test
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 7.0.x
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet publish -c Release -r win10-x64 -o publish -p:Platform=x64 -p:PublishTrimmed=true -p:TrimMode=partial -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=false
+
+    - name: Install WindowsAppRuntime
+      run: |
+        $config = Get-Content -Raw config.json | ConvertFrom-Json;
+        Invoke-WebRequest -Uri $config.WindowsAppRuntime -OutFile install.exe;
+        ./install.exe
+
+    - name: Test
+      run: |
+        Start-Process -FilePath ./publish/WindSong.exe;
+        $p = Get-Process -Name WindSong;
+        Start-Sleep -Seconds 3;
+        Write-Host "Main window handle: $($p.MainWindowHandle)";
+        if ($p.MainWindowHandle -gt 0) {
+            Write-Host "Start successfully!" -ForegroundColor Green;
+            $null = $p.CloseMainWindow();
+        } else {
+            Write-Error "Start failed!";
+            exit -1;
+        }
