@@ -1,0 +1,10 @@
+﻿{
+  "profiles": {
+    "WindSong (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WindSong (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
