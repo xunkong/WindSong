@@ -9,7 +9,7 @@ using System;
 using Vanara.PInvoke;
 using Windows.Graphics;
 using Windows.UI;
-using WindSong.Helper;
+using WindSong.Helpers;
 using WindSong.Pages;
 using WinRT.Interop;
 

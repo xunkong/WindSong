@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using Windows.UI;
 using WinRT;
 
-namespace WindSong.Helper;
+namespace WindSong.Helpers;
 
 internal class SystemBackdrop
 {
