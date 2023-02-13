@@ -1,6 +1,9 @@
 ﻿// Copyright (c) Microsoft Corporation and Contributors.
 // Licensed under the MIT License.
 
+using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -11,12 +14,15 @@ using Microsoft.UI.Xaml.Media.Animation;
 using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics;
+using WindSong.Helpers;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -26,18 +32,21 @@ namespace WindSong.Pages;
 /// <summary>
 /// An empty page that can be used on its own or navigated to within a Frame.
 /// </summary>
+[INotifyPropertyChanged]
 public sealed partial class MainPage : Page
 {
 
     public static MainPage Current { get; private set; }
 
 
+    public bool IsAdmin { get; } = AdminHelper.IsAdmin();
 
 
     public MainPage()
     {
         Current = this;
         this.InitializeComponent();
+        _timer.Tick += (_, _) => UpdatePlayerControl();
     }
 
 
@@ -72,6 +81,62 @@ public sealed partial class MainPage : Page
         }
     }
 
+
+
+
+
+    #region Player Control
+
+
+    private readonly DispatcherTimer _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+
+
+    [ObservableProperty]
+    private string midiFileName;
+
+
+    [ObservableProperty]
+    private int midiCurrentSeconds;
+
+
+    [ObservableProperty]
+    private int midiTotalSeconds;
+
+
+
+    private void UpdatePlayerControl()
+    {
+
+    }
+
+
+
+    [RelayCommand]
+    private void Previous()
+    {
+
+    }
+
+
+
+    [RelayCommand]
+    private void PlayOrPause()
+    {
+
+    }
+
+
+
+    [RelayCommand]
+    private void Next()
+    {
+
+    }
+
+
+
+
+    #endregion
 
 
 

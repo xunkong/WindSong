@@ -8,6 +8,7 @@
       xmlns:local="using:WindSong.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
       xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
+      x:DefaultBindMode="OneWay"
       NavigationCacheMode="Required"
       SizeChanged="Page_SizeChanged"
       mc:Ignorable="d">
@@ -18,6 +19,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition />
+            <RowDefinition Height="80" />
         </Grid.RowDefinitions>
 
 
@@ -31,7 +33,8 @@
                         MaxWidth="600"
                         Margin="200,0,200,0"
                         VerticalAlignment="Center"
-                        PlaceholderText="Search..." />
+                        PlaceholderText="Search..."
+                        QueryIcon="Find" />
 
 
         <Button Width="48"
@@ -45,7 +48,78 @@
             </Button.Flyout>
         </Button>
 
+
         <Frame Name="MainPageFrame" Grid.Row="1" />
+
+
+
+        <!--  Player Control  -->
+        <Grid Grid.Row="2"
+              Padding="12,8,12,8"
+              ColumnSpacing="12">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+
+            <StackPanel Orientation="Horizontal" Spacing="4">
+                <!--  Previous  -->
+                <Button Command="{x:Bind PreviousCommand, Mode=OneTime}"
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+                        ToolTipService.ToolTip="Previous">
+                    <FontIcon Glyph="&#xE100;" />
+                </Button>
+                <!--  Play / Pause  -->
+                <Button Command="{x:Bind PlayOrPauseCommand, Mode=OneTime}"
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+                        ToolTipService.ToolTip="Play / Pause">
+                    <FontIcon Glyph="&#xE102;" />
+                </Button>
+                <!--  Next  -->
+                <Button Command="{x:Bind NextCommand, Mode=OneTime}"
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+                        ToolTipService.ToolTip="Next">
+                    <FontIcon Glyph="&#xE101;" />
+                </Button>
+            </StackPanel>
+
+            <Grid Grid.Column="1" ColumnSpacing="8">
+                <Grid.RowDefinitions>
+                    <RowDefinition />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <TextBlock VerticalAlignment="Center"
+                           Text="{x:Bind MidiFileName}"
+                           TextTrimming="CharacterEllipsis" />
+                <TextBlock Grid.Column="1"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center">
+                    <Run Text="{x:Bind MidiCurrentSeconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
+                    <Run Text="/" />
+                    <Run Text="{x:Bind MidiTotalSeconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
+                </TextBlock>
+                <Slider Grid.Row="1"
+                        Grid.ColumnSpan="2"
+                        Maximum="{x:Bind MidiTotalSeconds}"
+                        ThumbToolTipValueConverter="{StaticResource PlayerSliderThumbToolTipConverter}"
+                        Value="{x:Bind MidiCurrentSeconds}" />
+            </Grid>
+
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        Spacing="8">
+                <Button Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                    <FontIcon Glyph="&#xE1A7;" />
+                </Button>
+            </StackPanel>
+
+        </Grid>
 
     </Grid>
 </Page>
