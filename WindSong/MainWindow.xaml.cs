@@ -44,11 +44,14 @@ public sealed partial class MainWindow : Window
 
     public ElementTheme ActualTheme => ((FrameworkElement)Content).ActualTheme;
 
+    public HotkeyManager HotKeyManager { get; private set; }
+
 
     public MainWindow()
     {
         Current = this;
         this.InitializeComponent();
+        HotKeyManager = new(this);
         InitializeBackdrop();
         InitializeWindowState();
         Navigate(typeof(MainPage));
@@ -144,6 +147,14 @@ public sealed partial class MainWindow : Window
         {
             RootFrame.Navigate(sourcePageType, param, infoOverride);
         }
+    }
+
+
+
+
+    private void Window_Closed(object sender, WindowEventArgs args)
+    {
+        HotKeyManager.Dispose();
     }
 
 
