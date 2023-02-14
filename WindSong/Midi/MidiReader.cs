@@ -17,64 +17,63 @@ public class MidiReader
         info.FilePath = filePath;
         info.FileName = Path.GetFileNameWithoutExtension(filePath);
         info.TrackCount = midi.Tracks;
-        if (midi.FileFormat == 1)
+
+        var tpqn = midi.DeltaTicksPerQuarterNote;
+        var tempos = midi.Events.SelectMany(x => x).Where(x => x is TempoEvent).OrderBy(x => x.AbsoluteTime).Select(x => x as TempoEvent).ToList();
+        var notes = new List<MidiNote>();
+        int track = 0;
+        long maxMicroseconds = 0;
+        foreach (var events in midi.Events)
         {
-            var tpqn = midi.DeltaTicksPerQuarterNote;
-            var tempos = midi.Events[0].Where(x => x is TempoEvent).Select(x => x as TempoEvent).ToList();
-            var notes = new List<MidiNote>();
-            int track = 0;
-            long maxMicroseconds = 0;
-            foreach (var events in midi.Events.Skip(1))
+            var tps = new Queue<TempoEvent>(tempos!);
+            long currentMicroseconds = 0;
+            int microsecondsPerTick = tps.Dequeue().MicrosecondsPerQuarterNote / tpqn;
+            long nextTempoTicks = 0;
+
+            if (tps.TryPeek(out var tempo))
             {
-                track++;
-                var tps = new Queue<TempoEvent>(tempos!);
-                long currentMicroseconds = 0;
-                int microsecondsPerTick = tps.Dequeue().MicrosecondsPerQuarterNote / tpqn;
-                long nextTempoTicks = 0;
+                nextTempoTicks = tempo.AbsoluteTime;
+            }
+            else
+            {
+                nextTempoTicks = long.MaxValue;
+            }
 
-                if (tps.TryPeek(out var tempo))
+            for (int i = 0; i < events.Count; i++)
+            {
+                var noteEvent = events[i];
+                if (noteEvent.AbsoluteTime > nextTempoTicks)
                 {
-                    nextTempoTicks = tempo.AbsoluteTime;
-                }
-                else
-                {
-                    nextTempoTicks = long.MaxValue;
-                }
-
-                for (int i = 0; i < events.Count; i++)
-                {
-                    var noteEvent = events[i];
-                    if (noteEvent.AbsoluteTime > nextTempoTicks)
+                    if (tps.TryDequeue(out var tempo1))
                     {
-                        if (tps.TryDequeue(out var tempo1))
+                        microsecondsPerTick = tempo1.MicrosecondsPerQuarterNote / tpqn;
+                        if (tps.TryPeek(out var tempo2))
                         {
-                            microsecondsPerTick = tempo1.MicrosecondsPerQuarterNote / tpqn;
-                            if (tps.TryPeek(out var tempo2))
-                            {
-                                nextTempoTicks = tempo2.AbsoluteTime;
-                            }
-                            else
-                            {
-                                nextTempoTicks = long.MaxValue;
-                            }
+                            nextTempoTicks = tempo2.AbsoluteTime;
                         }
                         else
                         {
                             nextTempoTicks = long.MaxValue;
                         }
                     }
-                    currentMicroseconds += noteEvent.DeltaTime * microsecondsPerTick;
-                    if (noteEvent is NoteOnEvent noteOn)
+                    else
                     {
-                        notes.Add(new MidiNote { AbsoluteMicrosecond = currentMicroseconds, Channel = noteOn.Channel, Track = track, NoteNumber = noteOn.NoteNumber });
+                        nextTempoTicks = long.MaxValue;
                     }
                 }
-                maxMicroseconds = Math.Max(maxMicroseconds, currentMicroseconds);
+                currentMicroseconds += noteEvent.DeltaTime * microsecondsPerTick;
+                if (noteEvent is NoteOnEvent noteOn)
+                {
+                    notes.Add(new MidiNote { AbsoluteMicrosecond = currentMicroseconds, Channel = noteOn.Channel, Track = track, NoteNumber = noteOn.NoteNumber });
+                }
             }
-            info.Notes = notes.OrderBy(x => x.AbsoluteMicrosecond).ThenBy(x => x.Track).ToList();
-            info.NoteCount = info.Notes.Count;
-            info.TotalMicroseconds = maxMicroseconds;
+            maxMicroseconds = Math.Max(maxMicroseconds, currentMicroseconds);
+
+            track++;
         }
+        info.Notes = notes.OrderBy(x => x.AbsoluteMicrosecond).ThenBy(x => x.Track).ToList();
+        info.NoteCount = info.Notes.Count;
+        info.TotalMicroseconds = maxMicroseconds;
         return info;
     }
 
