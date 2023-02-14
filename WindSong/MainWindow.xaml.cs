@@ -51,9 +51,9 @@ public sealed partial class MainWindow : Window
     {
         Current = this;
         this.InitializeComponent();
-        HotKeyManager = new(this);
         InitializeBackdrop();
         InitializeWindowState();
+        HotKeyManager = new(this);
         Navigate(typeof(MainPage));
     }
 
@@ -77,6 +77,7 @@ public sealed partial class MainWindow : Window
         var windowId = Win32Interop.GetWindowIdFromWindow(HWND);
         _appWindow = AppWindow.GetFromWindowId(windowId);
         this.Title = "Wind Song";
+        _appWindow.Title= this.Title;
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             var scale = this.UIScale;
