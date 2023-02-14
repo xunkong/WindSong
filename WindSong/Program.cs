@@ -6,7 +6,7 @@ public static class Program
     private static extern void XamlCheckProcessRequirements();
 
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.UI.Xaml.Markup.Compiler", " 1.0.0.0")]
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+    //[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.STAThreadAttribute]
     static void Main(string[] args)
     {
