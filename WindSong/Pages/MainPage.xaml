@@ -72,7 +72,8 @@
                     <FontIcon Glyph="&#xE100;" />
                 </Button>
                 <!--  Play / Pause  -->
-                <Button Command="{x:Bind PlayOrPauseCommand, Mode=OneTime}"
+                <Button Name="Button_PlayOrPause"
+                        Command="{x:Bind PlayOrPauseCommand, Mode=OneTime}"
                         Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
                         ToolTipService.ToolTip="Play / Pause">
                     <FontIcon Glyph="&#xE102;" />
@@ -100,15 +101,20 @@
                 <TextBlock Grid.Column="1"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center">
-                    <Run Text="{x:Bind MidiCurrentSeconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
+                    <Run Text="{x:Bind MidiCurrentMilliseconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
                     <Run Text="/" />
-                    <Run Text="{x:Bind MidiTotalSeconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
+                    <Run Text="{x:Bind MidiTotalMilliseconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
                 </TextBlock>
-                <Slider Grid.Row="1"
+                <Slider Name="Slider_PlayerControl"
+                        Grid.Row="1"
                         Grid.ColumnSpan="2"
-                        Maximum="{x:Bind MidiTotalSeconds}"
-                        ThumbToolTipValueConverter="{StaticResource PlayerSliderThumbToolTipConverter}"
-                        Value="{x:Bind MidiCurrentSeconds}" />
+                        IsTapEnabled="True"
+                        ManipulationCompleted="Slider_PlayerControl_ManipulationCompleted"
+                        ManipulationMode="All"
+                        ManipulationStarting="Slider_PlayerControl_ManipulationStarting"
+                        Maximum="{x:Bind MidiTotalMilliseconds}"
+                        Tapped="Slider_PlayerControl_Tapped"
+                        ThumbToolTipValueConverter="{StaticResource PlayerSliderThumbToolTipConverter}" />
             </Grid>
 
             <StackPanel Grid.Column="2"

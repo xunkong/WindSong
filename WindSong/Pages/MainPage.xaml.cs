@@ -6,23 +6,15 @@ using CommunityToolkit.Mvvm.Input;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Xaml.Navigation;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
+using System.Runtime.CompilerServices;
 using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Graphics;
 using WindSong.Helpers;
+using WindSong.Midi;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -36,6 +28,7 @@ namespace WindSong.Pages;
 public sealed partial class MainPage : Page
 {
 
+
     public static MainPage Current { get; private set; }
 
 
@@ -46,7 +39,7 @@ public sealed partial class MainPage : Page
     {
         Current = this;
         this.InitializeComponent();
-        _timer.Tick += (_, _) => UpdatePlayerControl();
+        InitializePlayerControl();
     }
 
 
@@ -88,7 +81,48 @@ public sealed partial class MainPage : Page
     #region Player Control
 
 
+    private readonly MidiPlayer _midiPlayer = new();
+
     private readonly DispatcherTimer _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+
+    private readonly FontIcon PlayIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE102" };
+
+    private readonly FontIcon PauseIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE103" };
+
+
+    private void InitializePlayerControl()
+    {
+        _timer.Tick += (_, _) => UpdatePlayerControl();
+        _midiPlayer.MidiFileChanged += (_, e) => DispatcherQueue.TryEnqueue(() =>
+        {
+            if (e != null)
+            {
+                MidiFileName = e.FileName;
+                MidiCurrentMilliseconds = 0;
+                MidiTotalMilliseconds = MicroToMilli(e.TotalMicroseconds);
+                Slider_PlayerControl.Value = 0;
+            }
+        });
+        _midiPlayer.PlayStateChanged += (_, e) => DispatcherQueue.TryEnqueue(() =>
+        {
+            if (e == MidiPlayState.Start)
+            {
+                _timer.Start();
+                Button_PlayOrPause.Content = PauseIcon;
+            }
+            else
+            {
+                _timer.Stop();
+                Button_PlayOrPause.Content = PlayIcon;
+                if (e == MidiPlayState.Stop)
+                {
+                    MidiCurrentMilliseconds = MidiTotalMilliseconds;
+                    Slider_PlayerControl.Value = MidiTotalMilliseconds;
+                }
+            }
+        });
+    }
+
 
 
     [ObservableProperty]
@@ -96,19 +130,48 @@ public sealed partial class MainPage : Page
 
 
     [ObservableProperty]
-    private int midiCurrentSeconds;
+    private int midiCurrentMilliseconds;
 
 
     [ObservableProperty]
-    private int midiTotalSeconds;
+    private int midiTotalMilliseconds;
 
 
+    private bool isPressed = false;
 
     private void UpdatePlayerControl()
     {
-
+        MidiCurrentMilliseconds = MicroToMilli(_midiPlayer.CurrentMicroseconds);
+        MidiTotalMilliseconds = MicroToMilli(_midiPlayer.TotalMicroseconds);
+        if (!isPressed)
+        {
+            Slider_PlayerControl.Value = MidiCurrentMilliseconds;
+        }
     }
 
+
+    private void Slider_PlayerControl_ManipulationStarting(object sender, ManipulationStartingRoutedEventArgs e)
+    {
+        isPressed = true;
+    }
+
+
+    private void Slider_PlayerControl_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
+    {
+        _midiPlayer.ChangeCurrentMilliseconds((int)Slider_PlayerControl.Value);
+        MidiCurrentMilliseconds = MicroToMilli(_midiPlayer.CurrentMicroseconds);
+        isPressed = false;
+    }
+
+
+    private void Slider_PlayerControl_Tapped(object sender, TappedRoutedEventArgs e)
+    {
+        var p = e.GetPosition(Slider_PlayerControl);
+        var value = MidiTotalMilliseconds * p.X / Slider_PlayerControl.ActualWidth;
+        _midiPlayer.ChangeCurrentMilliseconds((int)value);
+        MidiCurrentMilliseconds = MicroToMilli(_midiPlayer.CurrentMicroseconds);
+        isPressed = false;
+    }
 
 
     [RelayCommand]
@@ -122,7 +185,14 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void PlayOrPause()
     {
-
+        if (_midiPlayer.IsPlaying)
+        {
+            _midiPlayer.Pause();
+        }
+        else
+        {
+            _midiPlayer.Play();
+        }
     }
 
 
@@ -135,11 +205,20 @@ public sealed partial class MainPage : Page
 
 
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static int MicroToMilli(long value)
+    {
+        return (int)(value / 1000);
+    }
+
+
+
+
+
+
+
 
     #endregion
-
-
-
 
 
 }

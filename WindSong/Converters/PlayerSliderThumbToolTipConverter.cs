@@ -7,9 +7,11 @@ internal class PlayerSliderThumbToolTipConverter : IValueConverter
 {
     public object Convert(object value, Type targetType, object parameter, string language)
     {
-        if (value is int or double)
+        if (value is int or long or double)
         {
-            return $"{(int)value / 60:D2}:{(int)value % 60:D2}";
+            var ms = System.Convert.ToDouble(value);
+            var s = (int)(ms / 1000.0);
+            return $"{s / 60:D2}:{s % 60:D2}";
         }
         else
         {
