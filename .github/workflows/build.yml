@@ -26,7 +26,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet publish -c Release -r win10-x64 -o publish -p:Platform=x64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=false -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+      run: dotnet publish ./WindSong/WindSong.csproj -c Release -r win10-x64 -o publish -p:Platform=x64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=false -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
 
     - name: Install WindowsAppRuntime
       run: |
