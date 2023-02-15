@@ -26,7 +26,7 @@
         <TextBlock Margin="60,0,0,0"
                    VerticalAlignment="Center"
                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                   Text="Wind Song" />
+                   Text="{x:Bind TitleText}" />
 
         <AutoSuggestBox Name="SearchBox"
                         Height="32"
@@ -42,9 +42,12 @@
                 HorizontalAlignment="Left"
                 Style="{ThemeResource PaneToggleButtonStyle}">
             <Button.Flyout>
-                <Flyout>
-                    <Grid />
-                </Flyout>
+                <MenuFlyout>
+                    <MenuFlyoutItem Command="{x:Bind RestartAsAdminCommand, Mode=OneTime}"
+                                    Icon="Admin"
+                                    IsEnabled="{x:Bind AdminButtonEnable}"
+                                    Text="{x:Bind AdminButtonText}" />
+                </MenuFlyout>
             </Button.Flyout>
         </Button>
 

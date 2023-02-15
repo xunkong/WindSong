@@ -37,6 +37,13 @@ public sealed partial class MainPage : Page
 
     public bool IsAdmin { get; } = AdminHelper.IsAdmin();
 
+    public string TitleText => IsAdmin ? "Wind Song - Admin" : "Wind Song";
+
+    public bool AdminButtonEnable => !IsAdmin;
+
+
+    public string AdminButtonText => IsAdmin ? "Administrator Mode" : "Restart as Administrator";
+
 
     public MainPage()
     {
@@ -77,6 +84,25 @@ public sealed partial class MainPage : Page
         {
             MainPageFrame.Navigate(sourcePageType, param, infoOverride);
         }
+    }
+
+
+    [RelayCommand]
+    private void RestartAsAdmin()
+    {
+        if (IsAdmin)
+        {
+            return;
+        }
+        try
+        {
+            AdminHelper.RestartAsAdmin();
+            Application.Current.Exit();
+        }
+        catch (Exception ex)
+        {
+
+    }
     }
 
 
