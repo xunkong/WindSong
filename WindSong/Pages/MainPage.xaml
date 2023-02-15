@@ -110,6 +110,7 @@
                         Grid.ColumnSpan="2"
                         IsTapEnabled="True"
                         ManipulationCompleted="Slider_PlayerControl_ManipulationCompleted"
+                        ManipulationDelta="Slider_PlayerControl_ManipulationDelta"
                         ManipulationMode="All"
                         ManipulationStarting="Slider_PlayerControl_ManipulationStarting"
                         Maximum="{x:Bind MidiTotalMilliseconds}"

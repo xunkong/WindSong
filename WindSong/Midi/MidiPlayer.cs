@@ -40,14 +40,19 @@ public class MidiPlayer
 
     public void LoadMidiFile(string path)
     {
-        Pause();
-        MidiFileInfo = MidiReader.ReadFile(path);
-        TotalMicroseconds = MidiFileInfo.TotalMicroseconds;
-        MidiFileChanged?.Invoke(this, MidiFileInfo);
+        var info = MidiReader.ReadFile(path);
+        ChangeMidiFileInfo(info);
     }
 
 
-
+    public void ChangeMidiFileInfo(MidiFileInfo midiFileInfo)
+    {
+        Pause();
+        MidiFileInfo = midiFileInfo;
+        CurrentMicroseconds = 0;
+        TotalMicroseconds = MidiFileInfo.TotalMicroseconds;
+        MidiFileChanged?.Invoke(this, MidiFileInfo);
+    }
 
 
     public void Play()
@@ -96,10 +101,10 @@ public class MidiPlayer
         int i = 0;
         if (CurrentMicroseconds > 0)
         {
-            i = notes.FindIndex(x => x.AbsoluteMicrosecond >= CurrentMicroseconds);
+            i = notes.FindIndex(x => x.AbsoluteMicrosecond > CurrentMicroseconds);
             if (i == -1)
             {
-                i = notes.Count - 1;
+                i = notes.Count;
             }
         }
         RestartStopwatcher();

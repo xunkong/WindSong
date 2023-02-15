@@ -10,6 +10,9 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.IO;
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.Graphics;
@@ -40,6 +43,8 @@ public sealed partial class MainPage : Page
         Current = this;
         this.InitializeComponent();
         InitializePlayerControl();
+        LoadMidiPlaylist();
+        Navigate(typeof(PlaylistPage));
     }
 
 
@@ -77,9 +82,61 @@ public sealed partial class MainPage : Page
 
 
 
+    #region Playlist
+
+
+
+    [ObservableProperty]
+    private ObservableCollection<MidiFolder> playlist = new();
+
+
+    private void LoadMidiPlaylist()
+    {
+        var midiFolder = Path.Combine(AppContext.BaseDirectory, "midi");
+        if (!Directory.Exists(midiFolder))
+        {
+            return;
+        }
+        var files = Directory.GetFiles(midiFolder, "*.mid", SearchOption.TopDirectoryOnly);
+        var collection = new MidiFolder() { FolderName = "#" };
+        foreach (var file in files)
+        {
+            try
+            {
+                collection.Add(MidiReader.ReadFile(file));
+            }
+            catch { }
+        }
+        Playlist.Add(collection);
+        var dirs = Directory.GetDirectories(midiFolder);
+        foreach (var dir in dirs)
+        {
+            var col = new MidiFolder() { FolderName = Path.GetFileName(dir)! };
+            foreach (var file in Directory.GetFiles(dir, "*.mid", SearchOption.AllDirectories))
+            {
+                try
+                {
+                    col.Add(MidiReader.ReadFile(file));
+                }
+                catch { }
+            }
+            Playlist.Add(col);
+        }
+    }
+
+
+
+    #endregion
+
+
+
+
+
+
 
     #region Player Control
 
+    public MidiPlayer MidiPlayer => _midiPlayer;
 
     private readonly MidiPlayer _midiPlayer = new();
 
@@ -155,6 +212,11 @@ public sealed partial class MainPage : Page
         isPressed = true;
     }
 
+    private void Slider_PlayerControl_ManipulationDelta(object sender, ManipulationDeltaRoutedEventArgs e)
+    {
+        isPressed = true;
+    }
+
 
     private void Slider_PlayerControl_ManipulationCompleted(object sender, ManipulationCompletedRoutedEventArgs e)
     {
@@ -210,6 +272,11 @@ public sealed partial class MainPage : Page
     {
         return (int)(value / 1000);
     }
+
+
+
+
+
 
 
 

@@ -17,4 +17,14 @@ public class MidiFileInfo
 
     public long TotalMicroseconds { get; set; }
 
+
+    public string TimeString
+    {
+        get
+        {
+            var s = TotalMicroseconds / 1000000;
+            return $"{s / 60:D2}:{s % 60:D2}";
+        }
+    }
+
 }
