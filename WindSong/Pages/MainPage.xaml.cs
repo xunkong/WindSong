@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.Graphics;
@@ -102,7 +103,7 @@ public sealed partial class MainPage : Page
         catch (Exception ex)
         {
 
-    }
+        }
     }
 
 
@@ -157,7 +158,53 @@ public sealed partial class MainPage : Page
 
 
 
+    #region Search
 
+
+    private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+    {
+        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        {
+            var patternMidis = new List<MidiFileInfo>();
+            var text = sender.Text.Trim();
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                sender.ItemsSource = null;
+                sender.IsSuggestionListOpen = false;
+                return;
+            }
+            foreach (var midi in Playlist.SelectMany(x => x))
+            {
+                if (midi.FileName.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+                {
+                    patternMidis.Add(midi);
+                }
+            }
+            if (patternMidis.Count == 0)
+            {
+                sender.ItemsSource = null;
+                sender.IsSuggestionListOpen = false;
+            }
+            else
+            {
+                sender.ItemsSource = patternMidis;
+            }
+        }
+    }
+
+
+    private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
+    {
+        if (args.SelectedItem is MidiFileInfo info)
+        {
+            _midiPlayer.ChangeMidiFileInfo(info);
+        }
+    }
+
+
+
+
+    #endregion
 
 
     #region Player Control

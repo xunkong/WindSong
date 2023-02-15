@@ -33,8 +33,12 @@
                         MaxWidth="600"
                         Margin="200,0,200,0"
                         VerticalAlignment="Center"
+                        DisplayMemberPath="FileName"
                         PlaceholderText="Search..."
-                        QueryIcon="Find" />
+                        QueryIcon="Find"
+                        SuggestionChosen="SearchBox_SuggestionChosen"
+                        TextChanged="SearchBox_TextChanged"
+                        TextMemberPath="FileName" />
 
 
         <Button Width="48"
