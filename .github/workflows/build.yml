@@ -36,6 +36,8 @@ jobs:
 
     - name: Test
       run: |
+        Get-ChildItem -Path publish;
+        Write-Host ----------;
         Start-Process -FilePath ./publish/WindSong.exe;
         $p = Get-Process -Name WindSong;
         Start-Sleep -Seconds 3;
