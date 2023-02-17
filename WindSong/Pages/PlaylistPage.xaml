@@ -22,15 +22,27 @@
             <RowDefinition />
         </Grid.RowDefinitions>
 
-        <TextBlock Margin="12,0,0,0"
-                   VerticalAlignment="Center"
-                   FontSize="20"
-                   Text="Playlist" />
+        <StackPanel Margin="16,0,0,0"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="12">
+            <FontIcon Glyph="&#xE142;" />
+            <TextBlock FontSize="20" Text="Playlist" />
+        </StackPanel>
 
         <StackPanel Margin="0,0,12,0"
                     HorizontalAlignment="Right"
                     Orientation="Horizontal">
-            <AppBarButton Command="{x:Bind LocateCurrentPlayingMidiCommand, Mode=OneTime}" Label="Locate">
+            <AppBarButton Command="{x:Bind OpenMidiFolderCommand, Mode=OneTime}"
+                          Label="Open"
+                          ToolTipService.ToolTip="Open MIDI Folder">
+                <AppBarButton.Icon>
+                    <FontIcon Glyph="&#xE838;" />
+                </AppBarButton.Icon>
+            </AppBarButton>
+            <AppBarButton Command="{x:Bind LocateCurrentPlayingMidiCommand, Mode=OneTime}"
+                          Label="Locate"
+                          ToolTipService.ToolTip="Locate Playing MIDI">
                 <AppBarButton.Icon>
                     <FontIcon Glyph="&#xE81D;" />
                 </AppBarButton.Icon>
@@ -46,14 +58,21 @@
                         <GroupStyle>
                             <GroupStyle.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock Text="{Binding FolderName}" />
+                                    <TextBlock>
+                                        <Run Text="{Binding FolderName}" />
+                                        <Run Text="(" /><Run Text="{Binding Count}" /><Run Text=")" />
+                                    </TextBlock>
                                 </DataTemplate>
                             </GroupStyle.HeaderTemplate>
                         </GroupStyle>
                     </ListView.GroupStyle>
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <Grid ColumnSpacing="12">
+                            <Grid Name="Grid_MidiFileInfo"
+                                  Background="Transparent"
+                                  ColumnSpacing="12"
+                                  DoubleTapped="Grid_MidiFileInfo_DoubleTapped"
+                                  IsDoubleTapEnabled="True">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
                                     <ColumnDefinition Width="Auto" />
@@ -81,12 +100,32 @@
                 <ListView ItemsSource="{x:Bind PlaylistSource.View.CollectionGroups}" SelectionMode="None">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Group.FolderName}" />
+                            <TextBlock>
+                                <Run Text="{Binding Group.FolderName}" />
+                                <Run Text="(" /><Run Text="{Binding Group.Count}" /><Run Text=")" />
+                            </TextBlock>
                         </DataTemplate>
                     </ListView.ItemTemplate>
                 </ListView>
             </SemanticZoom.ZoomedOutView>
         </SemanticZoom>
+
+
+        <StackPanel Grid.Row="1"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Spacing="8"
+                    Visibility="{x:Bind ShowMidiTip}">
+            <TextBlock Text="Cannot find any MIDI file in the folder." TextWrapping="Wrap" />
+            <TextBlock>
+                <Run Text="- Click &quot;Open&quot; button above" />
+                <LineBreak />
+                <Run Text="- Save some MIDI files inside" />
+                <LineBreak />
+                <Run Text="- Restart the software" />
+            </TextBlock>
+            <HyperlinkButton Content="Where can I get MIDI file?" NavigateUri="https://github.com/xunkong/midi" />
+        </StackPanel>
 
 
     </Grid>

@@ -77,10 +77,10 @@ public sealed partial class MainWindow : Window
         var windowId = Win32Interop.GetWindowIdFromWindow(HWND);
         _appWindow = AppWindow.GetFromWindowId(windowId);
         this.Title = "Wind Song";
-        _appWindow.Title= this.Title;
+        _appWindow.Title = this.Title;
+        var scale = this.UIScale;
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
-            var scale = this.UIScale;
             var top = (int)(48 * scale);
             var titleBar = _appWindow.TitleBar;
             titleBar.ExtendsContentIntoTitleBar = true;
@@ -93,6 +93,7 @@ public sealed partial class MainWindow : Window
             _appWindow.ResizeClient(_appWindow.ClientSize);
             RootGrid.ActualThemeChanged += (_, _) => ChangeTitleBarButtonColor();
         }
+        _appWindow.Resize(new SizeInt32((int)(600 * scale), (int)(720 * scale)));
     }
 
 

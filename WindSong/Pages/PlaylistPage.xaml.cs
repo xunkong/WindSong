@@ -13,6 +13,7 @@ using Microsoft.UI.Xaml.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -42,16 +43,51 @@ public sealed partial class PlaylistPage : Page
     public ObservableCollection<MidiFolder> Playlist => MainPage.Current.Playlist;
 
 
+    public bool ShowMidiTip => !(Playlist?.Any() ?? false);
+
+
 
     private void Button_Play_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is Button button)
+        if (sender is FrameworkElement ele)
         {
-            if (button.DataContext is MidiFileInfo info)
+            if (ele.DataContext is MidiFileInfo info)
             {
                 MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
                 MainPage.Current.MidiPlayer.Play();
             }
+        }
+    }
+
+
+    private void Grid_MidiFileInfo_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement ele)
+        {
+            if (ele.DataContext is MidiFileInfo info)
+            {
+                MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
+            }
+        }
+    }
+
+
+    [RelayCommand]
+    private void OpenMidiFolder()
+    {
+        try
+        {
+            var folder = Path.Join(AppContext.BaseDirectory, "midi");
+            Directory.CreateDirectory(folder);
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folder,
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+
         }
     }
 

@@ -134,7 +134,10 @@ public sealed partial class MainPage : Page
             }
             catch { }
         }
-        Playlist.Add(collection);
+        if (collection.Any())
+        {
+            Playlist.Add(collection);
+        }
         var dirs = Directory.GetDirectories(midiFolder);
         foreach (var dir in dirs)
         {
@@ -205,6 +208,8 @@ public sealed partial class MainPage : Page
 
 
     #endregion
+
+
 
 
     #region Player Control

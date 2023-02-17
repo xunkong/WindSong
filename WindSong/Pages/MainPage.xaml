@@ -23,7 +23,7 @@
         </Grid.RowDefinitions>
 
 
-        <TextBlock Margin="60,0,0,0"
+        <TextBlock Margin="48,0,0,0"
                    VerticalAlignment="Center"
                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                    Text="{x:Bind TitleText}" />
@@ -129,7 +129,15 @@
                         Orientation="Horizontal"
                         Spacing="8">
                 <Button Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
-                    <FontIcon Glyph="&#xE1A7;" />
+                    <FontIcon Glyph="&#xEC4F;" />
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem IsEnabled="False" Text="Select Instrument" />
+                            <MenuFlyoutSeparator />
+                            <RadioMenuFlyoutItem Text="Windsong Lyre" />
+                            <RadioMenuFlyoutItem Text="Vintage Lyre" />
+                        </MenuFlyout>
+                    </Button.Flyout>
                 </Button>
             </StackPanel>
 
