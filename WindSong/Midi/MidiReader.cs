@@ -74,6 +74,8 @@ public class MidiReader
         info.Notes = notes.OrderBy(x => x.AbsoluteMicrosecond).ThenBy(x => x.Track).ToList();
         info.NoteCount = info.Notes.Count;
         info.TotalMicroseconds = maxMicroseconds;
+        info.HitRate_Windsong = (info.Notes.Count(x => MidiNoteToKeyboard.IsHit(x.NoteNumber, InstrumentType.WindsongLyre)) / (double)info.NoteCount).ToString("P1");
+        info.HitRate_Vintage = (info.Notes.Count(x => MidiNoteToKeyboard.IsHit(x.NoteNumber, InstrumentType.VintageLyre)) / (double)info.NoteCount).ToString("P1");
         return info;
     }
 

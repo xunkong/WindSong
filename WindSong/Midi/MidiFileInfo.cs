@@ -27,4 +27,10 @@ public class MidiFileInfo
         }
     }
 
+
+    public string HitRate_Windsong { get; set; }
+
+    public string HitRate_Vintage { get; set; }
+
+
 }

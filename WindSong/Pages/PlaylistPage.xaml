@@ -76,21 +76,59 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition />
                                     <ColumnDefinition Width="Auto" />
-                                    <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
                                 <TextBlock VerticalAlignment="Center"
                                            Text="{Binding FileName}"
                                            TextTrimming="CharacterEllipsis" />
-                                <TextBlock Grid.Column="1"
-                                           VerticalAlignment="Center"
-                                           Text="{Binding TimeString}" />
-                                <Button Name="Button_Play"
-                                        Grid.Column="2"
-                                        VerticalAlignment="Center"
-                                        Click="Button_Play_Click"
-                                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
-                                    <FontIcon FontSize="16" Glyph="&#xE102;" />
-                                </Button>
+                                <StackPanel Grid.Column="1"
+                                            Orientation="Horizontal"
+                                            Spacing="4">
+                                    <TextBlock Margin="0,0,4,0"
+                                               VerticalAlignment="Center"
+                                               Text="{Binding TimeString}" />
+                                    <Button Name="Button_Play"
+                                            Width="32"
+                                            Height="28"
+                                            Padding="0"
+                                            VerticalAlignment="Center"
+                                            Click="Button_Play_Click"
+                                            Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                                        <FontIcon FontSize="16" Glyph="&#xE102;" />
+                                    </Button>
+                                    <Button Width="32"
+                                            Height="28"
+                                            Padding="0"
+                                            VerticalAlignment="Center"
+                                            Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                                        <FontIcon FontSize="16" Glyph="&#xE946;" />
+                                        <Button.Flyout>
+                                            <Flyout>
+                                                <StackPanel>
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               FontSize="12"
+                                                               Text="Note Count" />
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               FontSize="14"
+                                                               Text="{Binding NoteCount}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               HorizontalAlignment="Center"
+                                                               FontSize="12"
+                                                               Text="Hit Rate - Windsong" />
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               FontSize="14"
+                                                               Text="{Binding HitRate_Windsong}" />
+                                                    <TextBlock Margin="0,4,0,0"
+                                                               HorizontalAlignment="Center"
+                                                               FontSize="12"
+                                                               Text="Hit Rate - Vintage" />
+                                                    <TextBlock HorizontalAlignment="Center"
+                                                               FontSize="14"
+                                                               Text="{Binding HitRate_Vintage}" />
+                                                </StackPanel>
+                                            </Flyout>
+                                        </Button.Flyout>
+                                    </Button>
+                                </StackPanel>
                             </Grid>
                         </DataTemplate>
                     </ListView.ItemTemplate>

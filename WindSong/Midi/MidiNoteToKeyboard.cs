@@ -24,6 +24,18 @@ public abstract class MidiNoteToKeyboard
 
 
 
+    public static bool IsHit(int note, InstrumentType type)
+    {
+        return type switch
+        {
+            InstrumentType.WindsongLyre => Windsong_QWERTY.ContainsKey(note),
+            InstrumentType.VintageLyre => Vintage_QWERTY.ContainsKey(note),
+            _ => Windsong_QWERTY.ContainsKey(note),
+        };
+    }
+
+
+
 
     private static Dictionary<int, User32.VK> Windsong_QWERTY = new Dictionary<int, User32.VK>
     {
