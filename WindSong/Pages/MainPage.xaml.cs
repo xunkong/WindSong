@@ -345,11 +345,29 @@ public sealed partial class MainPage : Page
 
 
 
+    private void RadioMenuFlyoutItem_ChangeInstrument_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement ele)
+        {
+            if (ele.Tag is "Windsong")
+            {
+                MidiNoteToKeyboard.InstrumentType = InstrumentType.WindsongLyre;
+            }
+            if (ele.Tag is "Vintage")
+            {
+                MidiNoteToKeyboard.InstrumentType = InstrumentType.VintageLyre;
+            }
+        }
+    }
+
+
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int MicroToMilli(long value)
     {
         return (int)(value / 1000);
     }
+
 
 
 

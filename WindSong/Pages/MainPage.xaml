@@ -134,8 +134,13 @@
                         <MenuFlyout>
                             <MenuFlyoutItem IsEnabled="False" Text="Select Instrument" />
                             <MenuFlyoutSeparator />
-                            <RadioMenuFlyoutItem Text="Windsong Lyre" />
-                            <RadioMenuFlyoutItem Text="Vintage Lyre" />
+                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
+                                                 IsChecked="True"
+                                                 Tag="Windsong"
+                                                 Text="Windsong Lyre" />
+                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
+                                                 Tag="Vintage"
+                                                 Text="Vintage Lyre" />
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
