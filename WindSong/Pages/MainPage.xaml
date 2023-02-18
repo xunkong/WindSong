@@ -26,7 +26,7 @@
         <TextBlock Margin="48,0,0,0"
                    VerticalAlignment="Center"
                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                   Text="{x:Bind TitleText}" />
+                   Text="Wind Song" />
 
         <AutoSuggestBox Name="SearchBox"
                         Height="32"

@@ -356,7 +356,29 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void Previous()
     {
-
+        var list = Playlist.SelectMany(x => x).ToList();
+        if (list.Any())
+        {
+            MidiFileInfo? midi = null;
+            if (_midiPlayer.MidiFileInfo is null)
+            {
+                midi = list.Last();
+            }
+            else
+            {
+                var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                if (index <= 0)
+                {
+                    midi = list.Last();
+                }
+                else
+                {
+                    midi = list[index - 1];
+                }
+            }
+            _midiPlayer.ChangeMidiFileInfo(midi);
+        }
+        PlayOrPause();
     }
 
 
@@ -379,7 +401,29 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void Next()
     {
-
+        var list = Playlist.SelectMany(x => x).ToList();
+        if (list.Any())
+        {
+            MidiFileInfo? midi = null;
+            if (_midiPlayer.MidiFileInfo is null)
+            {
+                midi = list.First();
+            }
+            else
+            {
+                var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                if (index >= list.Count - 1)
+                {
+                    midi = list.First();
+                }
+                else
+                {
+                    midi = list[index + 1];
+                }
+            }
+            _midiPlayer.ChangeMidiFileInfo(midi);
+        }
+        PlayOrPause();
     }
 
 
