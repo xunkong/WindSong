@@ -356,6 +356,10 @@ public sealed partial class MainPage : Page
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.WindsongLyre;
             }
+            if (ele.Tag is "Floral")
+            {
+                MidiNoteToKeyboard.InstrumentType = InstrumentType.FloralZither;
+            }
             if (ele.Tag is "Vintage")
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.VintageLyre;

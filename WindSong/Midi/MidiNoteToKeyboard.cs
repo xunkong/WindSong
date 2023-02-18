@@ -16,7 +16,7 @@ public abstract class MidiNoteToKeyboard
     {
         return (InstrumentType, KeyboradType) switch
         {
-            (InstrumentType.WindsongLyre, KeyboradType.QWERTY) => Windsong_QWERTY.GetValueOrDefault(note),
+            (InstrumentType.WindsongLyre or InstrumentType.FloralZither, KeyboradType.QWERTY) => Windsong_QWERTY.GetValueOrDefault(note),
             (InstrumentType.VintageLyre, KeyboradType.QWERTY) => Vintage_QWERTY.GetValueOrDefault(note),
             _ => Windsong_QWERTY.GetValueOrDefault(note),
         };
@@ -104,6 +104,9 @@ public enum InstrumentType
 
     [Description("Windsong Lyre")]
     WindsongLyre,
+
+    [Description("Floral Zither")]
+    FloralZither,
 
     [Description("Vintage Lyre")]
     VintageLyre,

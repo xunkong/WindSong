@@ -21,6 +21,8 @@ public class MidiPlayer
 
     private CancellationTokenSource tokenSource;
 
+    private bool isAdmin = AdminHelper.IsAdmin();
+
 
     public MidiFileInfo? MidiFileInfo { get; private set; }
 
@@ -57,7 +59,14 @@ public class MidiPlayer
 
     public void Play()
     {
-        hwnd = GameHelper.GetGameHwnd();
+        if (isAdmin)
+        {
+            hwnd = GameHelper.GetGameHwnd();
+        }
+        else
+        {
+            hwnd = 0;
+        }
         if (MidiFileInfo?.Notes?.Any() ?? false)
         {
             tokenSource = new CancellationTokenSource();
@@ -144,7 +153,7 @@ public class MidiPlayer
 
     private void PostMessage(int note)
     {
-        if (hwnd > 0)
+        if (isAdmin && hwnd > 0)
         {
             var key = (int)MidiNoteToKeyboard.GetVirtualKey(note);
             if (key > 0)

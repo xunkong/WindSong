@@ -157,6 +157,9 @@
                                                  Tag="Windsong"
                                                  Text="Windsong Lyre" />
                             <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
+                                                 Tag="Floral"
+                                                 Text="Floral Zither" />
+                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
                                                  Tag="Vintage"
                                                  Text="Vintage Lyre" />
                         </MenuFlyout>
