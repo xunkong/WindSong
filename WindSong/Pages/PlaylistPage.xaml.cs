@@ -38,6 +38,7 @@ public sealed partial class PlaylistPage : Page
     public PlaylistPage()
     {
         this.InitializeComponent();
+        LocateCurrentPlayingMidi();
     }
 
 

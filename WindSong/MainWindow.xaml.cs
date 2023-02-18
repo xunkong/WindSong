@@ -88,12 +88,28 @@ public sealed partial class MainWindow : Window
             titleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
             ChangeTitleBarButtonColor();
             titleBar.SetDragRectangles(new RectInt32[] { new RectInt32(0, 0, 10000, top) });
+            RootGrid.ActualThemeChanged += (_, _) => ChangeTitleBarButtonColor();
+        }
+        if (AppSetting.IsMainWindowMaximum)
+        {
             // Fix title bar cannot be dragged on Windows
             // https://github.com/microsoft/WindowsAppSDK/issues/2976
             _appWindow.ResizeClient(_appWindow.ClientSize);
-            RootGrid.ActualThemeChanged += (_, _) => ChangeTitleBarButtonColor();
+            User32.ShowWindow(HWND, ShowWindowCommand.SW_MAXIMIZE);
+            return;
         }
-        _appWindow.Resize(new SizeInt32((int)(600 * scale), (int)(720 * scale)));
+        var rect = AppSetting.MainWindowRect;
+        var display = DisplayArea;
+        var workAreaWidth = display.WorkArea.Width;
+        var workAreaHeight = display.WorkArea.Height;
+        if (rect.X > 0 && rect.Y > 0 && rect.X + rect.Width < workAreaWidth && rect.Y + rect.Height < workAreaHeight)
+        {
+            _appWindow.MoveAndResize(rect);
+        }
+        else
+        {
+            _appWindow.Resize(new SizeInt32((int)(600 * scale), (int)(720 * scale)));
+        }
     }
 
 
@@ -157,6 +173,22 @@ public sealed partial class MainWindow : Window
     private void Window_Closed(object sender, WindowEventArgs args)
     {
         HotKeyManager.Dispose();
+        SaveWindowState();
+    }
+
+
+
+    private void SaveWindowState()
+    {
+        var wpl = new User32.WINDOWPLACEMENT();
+        if (User32.GetWindowPlacement(HWND, ref wpl))
+        {
+            AppSetting.IsMainWindowMaximum = wpl.showCmd == ShowWindowCommand.SW_MAXIMIZE;
+            var p = _appWindow.Position;
+            var s = _appWindow.Size;
+            var rect = new RectInt32(p.X, p.Y, s.Width, s.Height);
+            AppSetting.MainWindowRect = rect;
+        }
     }
 
 

@@ -154,6 +154,24 @@ public sealed partial class MainPage : Page
             }
             Playlist.Add(col);
         }
+        var lastMidi = AppSetting.SelectMidi;
+        if (File.Exists(lastMidi))
+        {
+            var path = Path.GetFullPath(lastMidi);
+            var midi = Playlist.SelectMany(x => x).FirstOrDefault(x => x.FilePath == path);
+            if (midi != null)
+            {
+                _midiPlayer.ChangeMidiFileInfo(midi);
+            }
+        }
+        else
+        {
+            var midi = Playlist.SelectMany(x => x).FirstOrDefault();
+            if (midi != null)
+            {
+                _midiPlayer.ChangeMidiFileInfo(midi);
+            }
+        }
     }
 
 
@@ -239,6 +257,7 @@ public sealed partial class MainPage : Page
                 MidiCurrentMilliseconds = 0;
                 MidiTotalMilliseconds = MicroToMilli(e.TotalMicroseconds);
                 Slider_PlayerControl.Value = 0;
+                AppSetting.SelectMidi = Path.GetRelativePath(AppContext.BaseDirectory, e.FilePath);
             }
         });
         _midiPlayer.PlayStateChanged += (_, e) => DispatcherQueue.TryEnqueue(() =>
@@ -259,6 +278,23 @@ public sealed partial class MainPage : Page
                 }
             }
         });
+        MidiNoteToKeyboard.InstrumentType = AppSetting.SelectInstrument;
+        switch (MidiNoteToKeyboard.InstrumentType)
+        {
+            case InstrumentType.WindsongLyre:
+                RadioMenuFlyoutItem_Windsong.IsChecked = true;
+                break;
+            case InstrumentType.FloralZither:
+                RadioMenuFlyoutItem_Floral.IsChecked = true;
+                break;
+            case InstrumentType.VintageLyre:
+                RadioMenuFlyoutItem_Vintage.IsChecked = true;
+                break;
+            default:
+                MidiNoteToKeyboard.InstrumentType = InstrumentType.WindsongLyre;
+                RadioMenuFlyoutItem_Windsong.IsChecked = true;
+                break;
+        }
     }
 
 
@@ -364,6 +400,7 @@ public sealed partial class MainPage : Page
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.VintageLyre;
             }
+            AppSetting.SelectInstrument = MidiNoteToKeyboard.InstrumentType;
         }
     }
 

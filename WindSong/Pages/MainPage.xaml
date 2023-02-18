@@ -152,14 +152,16 @@
                         <MenuFlyout>
                             <MenuFlyoutItem IsEnabled="False" Text="Select Instrument" />
                             <MenuFlyoutSeparator />
-                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
-                                                 IsChecked="True"
+                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Windsong"
+                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
                                                  Tag="Windsong"
                                                  Text="Windsong Lyre" />
-                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
+                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Floral"
+                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
                                                  Tag="Floral"
                                                  Text="Floral Zither" />
-                            <RadioMenuFlyoutItem Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
+                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Vintage"
+                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
                                                  Tag="Vintage"
                                                  Text="Vintage Lyre" />
                         </MenuFlyout>
