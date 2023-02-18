@@ -9,7 +9,7 @@ using WinRT;
 
 namespace WindSong.Helpers;
 
-internal class SystemBackdrop
+internal partial class SystemBackdrop
 {
     private readonly Window _window;
 
@@ -249,7 +249,7 @@ internal class SystemBackdrop
 
 
 
-    private class WindowsSystemDispatcherQueueHelper
+    private partial class WindowsSystemDispatcherQueueHelper
     {
         [StructLayout(LayoutKind.Sequential)]
         struct DispatcherQueueOptions
@@ -259,10 +259,10 @@ internal class SystemBackdrop
             internal int apartmentType;
         }
 
-        [DllImport("CoreMessaging.dll")]
-        private static extern int CreateDispatcherQueueController([In] DispatcherQueueOptions options, [In, Out, MarshalAs(UnmanagedType.IUnknown)] ref object? dispatcherQueueController);
+        [LibraryImport("CoreMessaging.dll")]
+        private static partial int CreateDispatcherQueueController(/*[In]*/ DispatcherQueueOptions options, /*[In, Out, MarshalAs(UnmanagedType.IUnknown)]*/out nint dispatcherQueueController);
 
-        object? m_dispatcherQueueController = null;
+        nint m_dispatcherQueueController;
         public void EnsureWindowsSystemDispatcherQueueController()
         {
             if (Windows.System.DispatcherQueue.GetForCurrentThread() != null)
@@ -271,14 +271,14 @@ internal class SystemBackdrop
                 return;
             }
 
-            if (m_dispatcherQueueController == null)
+            if (m_dispatcherQueueController == 0)
             {
                 DispatcherQueueOptions options;
                 options.dwSize = Marshal.SizeOf(typeof(DispatcherQueueOptions));
                 options.threadType = 2;    // DQTYPE_THREAD_CURRENT
                 options.apartmentType = 2; // DQTAT_COM_STA
 
-                _ = CreateDispatcherQueueController(options, ref m_dispatcherQueueController);
+                _ = CreateDispatcherQueueController(options, out m_dispatcherQueueController);
             }
         }
     }
