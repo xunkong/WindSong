@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
@@ -19,6 +20,7 @@ using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using WindSong.Messages;
 using WindSong.Midi;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -36,6 +38,26 @@ public sealed partial class PlaylistPage : Page
     public PlaylistPage()
     {
         this.InitializeComponent();
+    }
+
+
+
+    protected override void OnNavigatedTo(NavigationEventArgs e)
+    {
+        base.OnNavigatedTo(e);
+        WeakReferenceMessenger.Default.Register<ChoseSearchResultMessage>(this, (_, m) =>
+        {
+            ListView_Playlist.SelectedItem = m.MidiFileInfo;
+            ListView_Playlist.ScrollIntoView(m.MidiFileInfo, ScrollIntoViewAlignment.Leading);
+        });
+    }
+
+
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        base.OnNavigatedFrom(e);
+        WeakReferenceMessenger.Default.Unregister<ChoseSearchResultMessage>(this);
     }
 
 

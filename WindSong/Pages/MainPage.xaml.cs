@@ -3,6 +3,7 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -18,6 +19,7 @@ using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.Graphics;
 using WindSong.Helpers;
+using WindSong.Messages;
 using WindSong.Midi;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -201,6 +203,7 @@ public sealed partial class MainPage : Page
         if (args.SelectedItem is MidiFileInfo info)
         {
             _midiPlayer.ChangeMidiFileInfo(info);
+            WeakReferenceMessenger.Default.Send(new ChoseSearchResultMessage(info));
         }
     }
 
