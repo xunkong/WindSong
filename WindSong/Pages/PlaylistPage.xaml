@@ -58,7 +58,7 @@
                         <GroupStyle>
                             <GroupStyle.HeaderTemplate>
                                 <DataTemplate>
-                                    <TextBlock>
+                                    <TextBlock FontWeight="SemiBold">
                                         <Run Text="{Binding FolderName}" />
                                         <Run Text="(" /><Run Text="{Binding Count}" /><Run Text=")" />
                                     </TextBlock>
@@ -106,6 +106,7 @@
                                                 <StackPanel>
                                                     <TextBlock HorizontalAlignment="Center"
                                                                FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                Text="Note Count" />
                                                     <TextBlock HorizontalAlignment="Center"
                                                                FontSize="14"
@@ -113,6 +114,7 @@
                                                     <TextBlock Margin="0,4,0,0"
                                                                HorizontalAlignment="Center"
                                                                FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                Text="Hit Rate - Windsong" />
                                                     <TextBlock HorizontalAlignment="Center"
                                                                FontSize="14"
@@ -120,6 +122,7 @@
                                                     <TextBlock Margin="0,4,0,0"
                                                                HorizontalAlignment="Center"
                                                                FontSize="12"
+                                                               Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                                                Text="Hit Rate - Vintage" />
                                                     <TextBlock HorizontalAlignment="Center"
                                                                FontSize="14"
@@ -138,7 +141,7 @@
                 <ListView ItemsSource="{x:Bind PlaylistSource.View.CollectionGroups}" SelectionMode="None">
                     <ListView.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock>
+                            <TextBlock FontWeight="SemiBold">
                                 <Run Text="{Binding Group.FolderName}" />
                                 <Run Text="(" /><Run Text="{Binding Group.Count}" /><Run Text=")" />
                             </TextBlock>

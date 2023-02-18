@@ -53,6 +53,7 @@ public sealed partial class PlaylistPage : Page
         {
             if (ele.DataContext is MidiFileInfo info)
             {
+                ListView_Playlist.SelectedItem = info;
                 MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
                 MainPage.Current.MidiPlayer.Play();
             }
