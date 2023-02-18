@@ -1,13 +1,16 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
-name: Build and Test
+name: Build CI
 
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+
+env:
+  PublishFolder: WindSong-CI
 
 jobs:
   build:
@@ -26,7 +29,7 @@ jobs:
       run: dotnet restore
 
     - name: Build
-      run: dotnet publish ./WindSong/WindSong.csproj -c Release -r win10-x64 -o publish -p:Platform=x64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=false -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
+      run: dotnet publish ./WindSong/WindSong.csproj -c Release -r win10-x64 -o ${{env.PublishFolder}} -p:Platform=x64 -p:SelfContained=true -p:PublishSingleFile=true -p:PublishReadyToRun=false -p:IncludeNativeLibrariesForSelfExtract=true -p:EnableCompressionInSingleFile=true
 
     - name: Install WindowsAppRuntime
       run: |
@@ -34,11 +37,21 @@ jobs:
         Invoke-WebRequest -Uri $config.WindowsAppRuntime -OutFile install.exe;
         ./install.exe
 
+    - name: Add Readme File
+      run: |
+        $path = "${{env.PublishFolder}}/!README.txt"
+        Add-Content -Path $path -Value 'Wind Song is a software to play Lyre automatically in Genshin Impact.';
+        Add-Content -Path $path -Value 'Download WinAppRuntime from the following link and install it, then run "WindSong.exe".';
+        Add-Content -Path $path -Value (ConvertFrom-Json (Get-Content -Raw config.json)).WindowsAppRuntime;
+        Add-Content -Path $path -Value "--------------------";
+        Add-Content -Path $path -Value "Commit: ${{github.sha}}";
+        Add-Content -Path $path -Value "Build at: $(Get-Date -AsUTC -Format "yyyy-MM-dd HH:mm:ss UTC")";
+
     - name: Test
       run: |
-        Get-ChildItem -Path publish;
+        Get-ChildItem -Path ${{env.PublishFolder}};
         Write-Host ----------;
-        Start-Process -FilePath ./publish/WindSong.exe;
+        Start-Process -FilePath ./${{env.PublishFolder}}/WindSong.exe;
         $p = Get-Process -Name WindSong;
         Start-Sleep -Seconds 3;
         Write-Host "Main window handle: $($p.MainWindowHandle)";
@@ -51,6 +64,7 @@ jobs:
         }
 
     - name: Config Ossutil
+      if: github.event_name == 'push'
       run: |
         Invoke-WebRequest https://gosspublic.alicdn.com/ossutil/1.7.14/ossutil64.zip -OutFile ${{runner.temp}}/ossutil64.zip
         Expand-Archive -Path ${{runner.temp}}/ossutil64.zip -DestinationPath ${{runner.temp}}
@@ -58,6 +72,7 @@ jobs:
         ossutil config -e ${{secrets.OSS_ENDPOINT}} -i ${{secrets.ACCESS_KEY_ID}} -k ${{secrets.ACCESS_KEY_SECRET}}
 
     - name: Upload to Oss
+      if: github.event_name == 'push'
       run: |
-        Compress-Archive -Path publish -DestinationPath windsong-ci.zip
-        ossutil cp windsong-ci.zip oss://scighost-xunkong/download/windsong/ -f
+        Compress-Archive -Path ${{env.PublishFolder}} -DestinationPath ${{env.PublishFolder}}.zip
+        ossutil cp ${{env.PublishFolder}}.zip oss://scighost-xunkong/download/windsong/ -f
