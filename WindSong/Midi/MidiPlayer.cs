@@ -21,7 +21,7 @@ public class MidiPlayer
 
     private CancellationTokenSource tokenSource;
 
-    private bool isAdmin = AdminHelper.IsAdmin();
+    private bool isAdmin = AdminHelper.IsAdmin;
 
 
     public MidiFileInfo? MidiFileInfo { get; private set; }
@@ -49,29 +49,44 @@ public class MidiPlayer
 
     public void ChangeMidiFileInfo(MidiFileInfo midiFileInfo)
     {
-        Pause();
-        MidiFileInfo = midiFileInfo;
-        CurrentMicroseconds = 0;
-        TotalMicroseconds = MidiFileInfo.TotalMicroseconds;
-        MidiFileChanged?.Invoke(this, MidiFileInfo);
+        try
+        {
+            Pause();
+            MidiFileInfo = midiFileInfo;
+            CurrentMicroseconds = 0;
+            TotalMicroseconds = MidiFileInfo.TotalMicroseconds;
+            MidiFileChanged?.Invoke(this, MidiFileInfo);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, $"Change midi file '{midiFileInfo.FileName}'.");
+        }
     }
 
 
     public void Play()
     {
-        if (isAdmin)
+        try
         {
-            hwnd = GameHelper.GetGameHwnd();
+            if (isAdmin)
+            {
+                hwnd = GameHelper.GetGameHwnd();
+                Logger.Info($"Game window handle: {hwnd}");
+            }
+            else
+            {
+                hwnd = 0;
+            }
+            if (MidiFileInfo?.Notes?.Any() ?? false)
+            {
+                tokenSource = new CancellationTokenSource();
+                PlayStateChanged?.Invoke(this, MidiPlayState.Start);
+                new Thread(async () => await InternelPlayMidi(tokenSource.Token)).Start();
+            }
         }
-        else
+        catch (Exception ex)
         {
-            hwnd = 0;
-        }
-        if (MidiFileInfo?.Notes?.Any() ?? false)
-        {
-            tokenSource = new CancellationTokenSource();
-            PlayStateChanged?.Invoke(this, MidiPlayState.Start);
-            new Thread(async () => await InternelPlayMidi(tokenSource.Token)).Start();
+            Logger.Error(ex, "Play midi file.");
         }
     }
 
@@ -80,23 +95,37 @@ public class MidiPlayer
 
     public void Pause()
     {
-        tokenSource?.Cancel();
-        timeEndPeriod(1);
-        IsPlaying = false;
-        PlayStateChanged?.Invoke(this, MidiPlayState.Pause);
+        try
+        {
+            tokenSource?.Cancel();
+            timeEndPeriod(1);
+            IsPlaying = false;
+            PlayStateChanged?.Invoke(this, MidiPlayState.Pause);
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Pause midi file.");
+        }
     }
 
 
 
     public void ChangeCurrentMilliseconds(int ms)
     {
-        var isPlaying = IsPlaying;
-        tokenSource?.Cancel();
-        CurrentMicroseconds = Math.Clamp(ms * 1000, 0, TotalMicroseconds);
-        if (isPlaying)
+        try
         {
-            tokenSource = new CancellationTokenSource();
-            new Thread(async () => await InternelPlayMidi(tokenSource.Token)).Start();
+            var isPlaying = IsPlaying;
+            tokenSource?.Cancel();
+            CurrentMicroseconds = Math.Clamp(ms * 1000, 0, TotalMicroseconds);
+            if (isPlaying)
+            {
+                tokenSource = new CancellationTokenSource();
+                new Thread(async () => await InternelPlayMidi(tokenSource.Token)).Start();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Pause midi file.");
         }
     }
 
@@ -153,17 +182,21 @@ public class MidiPlayer
 
     private void PostMessage(int note)
     {
-        if (isAdmin && hwnd > 0)
+        try
         {
-            var key = (int)MidiNoteToKeyboard.GetVirtualKey(note);
-            if (key > 0)
+            if (isAdmin && hwnd > 0)
             {
-                User32.PostMessage(hwnd, User32.WindowMessage.WM_ACTIVATE, 1, 0);
-                User32.PostMessage(hwnd, User32.WindowMessage.WM_KEYDOWN, key, 0x1e0001);
-                User32.PostMessage(hwnd, User32.WindowMessage.WM_CHAR, key, 0x1e0001);
-                User32.PostMessage(hwnd, User32.WindowMessage.WM_KEYUP, key, unchecked((nint)0xc01e0001));
+                var key = (int)MidiNoteToKeyboard.GetVirtualKey(note);
+                if (key > 0)
+                {
+                    User32.PostMessage(hwnd, User32.WindowMessage.WM_ACTIVATE, 1, 0);
+                    User32.PostMessage(hwnd, User32.WindowMessage.WM_KEYDOWN, key, 0x1e0001);
+                    User32.PostMessage(hwnd, User32.WindowMessage.WM_CHAR, key, 0x1e0001);
+                    User32.PostMessage(hwnd, User32.WindowMessage.WM_KEYUP, key, unchecked((nint)0xc01e0001));
+                }
             }
         }
+        catch { }
     }
 
 

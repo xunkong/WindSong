@@ -20,6 +20,13 @@ public partial class App : Application
     public App()
     {
         this.InitializeComponent();
+        this.UnhandledException += App_UnhandledException;
+    }
+
+    private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        Logger.Error(e.Exception, $"Unhandled exception: {e.Message}");
+        e.Handled = true;
     }
 
     /// <summary>

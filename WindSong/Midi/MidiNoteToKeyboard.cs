@@ -7,17 +7,20 @@ namespace WindSong.Midi;
 public abstract class MidiNoteToKeyboard
 {
 
-    public static InstrumentType InstrumentType { get; set; } = InstrumentType.WindsongLyre;
+    private static InstrumentType instrumentType = InstrumentType.WindsongLyre;
 
-    public static KeyboradType KeyboradType { get; set; } = KeyboradType.QWERTY;
+    public static InstrumentType InstrumentType { get => instrumentType; set { instrumentType = value; Logger.Info($"Change instrument type: {value}"); } }
+
+    private static KeyboardType keyboardType = KeyboardType.QWERTY;
+    public static KeyboardType Keyboard { get => keyboardType; set { keyboardType = value; Logger.Info($"Change keyboard type: {value}"); } }
 
 
     public static User32.VK GetVirtualKey(int note)
     {
-        return (InstrumentType, KeyboradType) switch
+        return (InstrumentType, Keyboard) switch
         {
-            (InstrumentType.WindsongLyre or InstrumentType.FloralZither, KeyboradType.QWERTY) => Windsong_QWERTY.GetValueOrDefault(note),
-            (InstrumentType.VintageLyre, KeyboradType.QWERTY) => Vintage_QWERTY.GetValueOrDefault(note),
+            (InstrumentType.WindsongLyre or InstrumentType.FloralZither, KeyboardType.QWERTY) => Windsong_QWERTY.GetValueOrDefault(note),
+            (InstrumentType.VintageLyre, KeyboardType.QWERTY) => Vintage_QWERTY.GetValueOrDefault(note),
             _ => Windsong_QWERTY.GetValueOrDefault(note),
         };
     }
@@ -115,7 +118,7 @@ public enum InstrumentType
 
 
 
-public enum KeyboradType
+public enum KeyboardType
 {
     QWERTY,
 }

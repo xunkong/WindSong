@@ -19,6 +19,7 @@ internal abstract class Logger
             Log.Logger = new LoggerConfiguration().WriteTo.File(path: path, outputTemplate: "[{Timestamp:HH:mm:ss.fff}] [{Level:u4}] {CallerMemberName} at {CallerFilePath} line {CallerLineNumber}{NewLine}{Message}{NewLine}{Exception}{NewLine}")
                                                   .Enrich.FromLogContext()
                                                   .CreateLogger();
+
             var sb = new StringBuilder();
             sb.Append("Wind Song");
             var exe = Process.GetCurrentProcess().MainModule?.FileName;
@@ -30,6 +31,7 @@ internal abstract class Logger
             {
                 sb.AppendLine();
             }
+            sb.AppendLine($"Admin: {AdminHelper.IsAdmin}");
             sb.AppendLine($"Time: {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff}");
             sb.AppendLine($"OSVersion: {Environment.OSVersion}");
             sb.AppendLine($"CommandLine: {Environment.CommandLine}");

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.UI.Xaml;
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
@@ -10,7 +11,16 @@ internal abstract class AdminHelper
 {
 
 
-    public static bool IsAdmin()
+    public static bool IsAdmin { get; private set; }
+
+
+    static AdminHelper()
+    {
+        IsAdmin = InternelIsAdmin();
+    }
+
+
+    private static bool InternelIsAdmin()
     {
         using WindowsIdentity identity = WindowsIdentity.GetCurrent();
         WindowsPrincipal principal = new WindowsPrincipal(identity);
@@ -18,11 +28,14 @@ internal abstract class AdminHelper
     }
 
 
-
+    /// <summary>
+    /// No exception
+    /// </summary>
     public static void RestartAsAdmin()
     {
         try
         {
+            Logger.Info("Restart as admin.");
             var file = Process.GetCurrentProcess().MainModule?.FileName;
             if (string.IsNullOrWhiteSpace(file))
             {
@@ -34,18 +47,18 @@ internal abstract class AdminHelper
                 UseShellExecute = true,
                 Verb = "runas",
             });
+            Logger.Info("Exit the application.");
+            Application.Current.Exit();
         }
-        catch (Win32Exception ex)
+        catch (Win32Exception ex) when (ex.NativeErrorCode == 1223)
         {
-            if (ex.NativeErrorCode == 1223)
-            {
-                // ERROR_CANCELLED
-                // The operation was canceled by the user.
-            }
-            else
-            {
-                throw;
-            }
+            // ERROR_CANCELLED
+            // The operation was canceled by the user.
+            Logger.Info("Restart as admin operation cancelled.");
+        }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error in restart as admin.");
         }
     }
 

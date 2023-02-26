@@ -172,6 +172,7 @@ public sealed partial class MainWindow : Window
 
     private void Window_Closed(object sender, WindowEventArgs args)
     {
+        Logger.Info("MainWindow closed.");
         HotKeyManager.Dispose();
         SaveWindowState();
     }

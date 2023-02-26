@@ -38,7 +38,7 @@ public sealed partial class MainPage : Page
     public static MainPage Current { get; private set; }
 
 
-    public bool IsAdmin { get; } = AdminHelper.IsAdmin();
+    public bool IsAdmin { get; } = AdminHelper.IsAdmin;
 
     public string TitleText => IsAdmin ? "Wind Song - Admin" : "Wind Song";
 
@@ -101,15 +101,7 @@ public sealed partial class MainPage : Page
         {
             return;
         }
-        try
-        {
-            AdminHelper.RestartAsAdmin();
-            Application.Current.Exit();
-        }
-        catch (Exception ex)
-        {
-
-        }
+        AdminHelper.RestartAsAdmin();
     }
 
 
@@ -136,7 +128,10 @@ public sealed partial class MainPage : Page
                 {
                     collection.Add(MidiReader.ReadFile(file));
                 }
-                catch { }
+                catch (Exception ex)
+                {
+                    Logger.Error(ex, $"Cannot read midi file '{file}'.");
+                }
             }
             if (collection.Any())
             {
@@ -152,7 +147,10 @@ public sealed partial class MainPage : Page
                     {
                         col.Add(MidiReader.ReadFile(file));
                     }
-                    catch { }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, $"Cannot read midi file '{file}'.");
+                    }
                 }
                 Playlist.Add(col);
             }
@@ -178,6 +176,7 @@ public sealed partial class MainPage : Page
         if (!(Playlist?.Any() ?? false))
         {
             StackPanel_MidiTooltip.Visibility = Visibility.Visible;
+            Logger.Info("Cannot find any midi files.");
         }
     }
 
@@ -190,9 +189,13 @@ public sealed partial class MainPage : Page
         {
             if (ele.DataContext is MidiFileInfo info)
             {
-                ListView_Playlist.SelectedItem = info;
-                MidiPlayer.ChangeMidiFileInfo(info);
-                MidiPlayer.Play();
+                try
+                {
+                    ListView_Playlist.SelectedItem = info;
+                    MidiPlayer.ChangeMidiFileInfo(info);
+                    MidiPlayer.Play();
+                }
+                catch { }
             }
         }
     }
@@ -204,7 +207,11 @@ public sealed partial class MainPage : Page
         {
             if (ele.DataContext is MidiFileInfo info)
             {
-                MidiPlayer.ChangeMidiFileInfo(info);
+                try
+                {
+                    MidiPlayer.ChangeMidiFileInfo(info);
+                }
+                catch { }
             }
         }
     }
@@ -225,7 +232,7 @@ public sealed partial class MainPage : Page
         }
         catch (Exception ex)
         {
-
+            Logger.Error(ex, "Open midi folder.");
         }
     }
 
@@ -233,12 +240,16 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void LocateCurrentPlayingMidi()
     {
-        var playing = MidiPlayer.MidiFileInfo;
-        if (playing != null)
+        try
         {
-            ListView_Playlist.SelectedItem = playing;
-            ListView_Playlist.ScrollIntoView(playing, ScrollIntoViewAlignment.Leading);
+            var playing = MidiPlayer.MidiFileInfo;
+            if (playing != null)
+            {
+                ListView_Playlist.SelectedItem = playing;
+                ListView_Playlist.ScrollIntoView(playing, ScrollIntoViewAlignment.Leading);
+            }
         }
+        catch { }
     }
 
 
@@ -250,35 +261,51 @@ public sealed partial class MainPage : Page
 
     private async void Grid_Playlist_Drop(object sender, DragEventArgs e)
     {
-        if (e.DataView.Contains(StandardDataFormats.StorageItems))
+        try
         {
-            var items = await e.DataView.GetStorageItemsAsync();
-            if (items.Count > 0)
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
-                var files = items.Where(x => x.Name.ToLower().EndsWith(".mid") || x.Name.ToLower().EndsWith(".midi")).ToList();
-                if (files.Count > 0)
+                var items = await e.DataView.GetStorageItemsAsync();
+                if (items.Count > 0)
                 {
-                    var midiFolder = Path.Combine(AppContext.BaseDirectory, "midi");
-                    Directory.CreateDirectory(midiFolder);
-                    var list = Playlist.FirstOrDefault();
-                    if (list is null)
+                    var files = items.Where(x => x.Name.ToLower().EndsWith(".mid") || x.Name.ToLower().EndsWith(".midi")).ToList();
+                    Logger.Info($"Drag into {files.Count} midi files.");
+                    if (files.Count > 0)
                     {
-                        list = new MidiFolder { FolderName = "#" };
-                        Playlist.Add(list);
-                    }
-                    foreach (var file in files)
-                    {
-                        var midi = MidiReader.ReadFile(file.Path);
-                        File.Copy(file.Path, Path.Combine(midiFolder, file.Name), true);
-                        list.Add(midi);
-                    }
-                    if (list.Any())
-                    {
-                        StackPanel_MidiTooltip.Visibility = Visibility.Collapsed;
+                        var midiFolder = Path.Combine(AppContext.BaseDirectory, "midi");
+                        Directory.CreateDirectory(midiFolder);
+                        var list = Playlist.FirstOrDefault();
+                        if (list is null)
+                        {
+                            list = new MidiFolder { FolderName = "#" };
+                            Playlist.Add(list);
+                        }
+                        foreach (var file in files)
+                        {
+                            try
+                            {
+                                var midi = MidiReader.ReadFile(file.Path);
+                                File.Copy(file.Path, Path.Combine(midiFolder, file.Name), true);
+                                list.Add(midi);
+                            }
+                            catch (Exception ex)
+                            {
+                                Logger.Error(ex, $"Cannot read midi file '{file}'.");
+                            }
+                        }
+                        if (list.Any())
+                        {
+                            StackPanel_MidiTooltip.Visibility = Visibility.Collapsed;
+                        }
                     }
                 }
             }
         }
+        catch (Exception ex)
+        {
+            Logger.Error(ex, "Error in drag midi files into playlist.");
+        }
+
     }
 
 
@@ -293,44 +320,52 @@ public sealed partial class MainPage : Page
 
     private void SearchBox_TextChanged(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
     {
-        if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
+        try
         {
-            var patternMidis = new List<MidiFileInfo>();
-            var text = sender.Text.Trim();
-            if (string.IsNullOrWhiteSpace(text))
+            if (args.Reason == AutoSuggestionBoxTextChangeReason.UserInput)
             {
-                sender.ItemsSource = null;
-                sender.IsSuggestionListOpen = false;
-                return;
-            }
-            foreach (var midi in Playlist.SelectMany(x => x))
-            {
-                if (midi.FileName.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+                var patternMidis = new List<MidiFileInfo>();
+                var text = sender.Text.Trim();
+                if (string.IsNullOrWhiteSpace(text))
                 {
-                    patternMidis.Add(midi);
+                    sender.ItemsSource = null;
+                    sender.IsSuggestionListOpen = false;
+                    return;
+                }
+                foreach (var midi in Playlist.SelectMany(x => x))
+                {
+                    if (midi.FileName.Contains(text, StringComparison.CurrentCultureIgnoreCase))
+                    {
+                        patternMidis.Add(midi);
+                    }
+                }
+                if (patternMidis.Count == 0)
+                {
+                    sender.ItemsSource = null;
+                    sender.IsSuggestionListOpen = false;
+                }
+                else
+                {
+                    sender.ItemsSource = patternMidis;
                 }
             }
-            if (patternMidis.Count == 0)
-            {
-                sender.ItemsSource = null;
-                sender.IsSuggestionListOpen = false;
-            }
-            else
-            {
-                sender.ItemsSource = patternMidis;
-            }
         }
+        catch { }
     }
 
 
     private void SearchBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
     {
-        if (args.SelectedItem is MidiFileInfo info)
+        try
         {
-            _midiPlayer.ChangeMidiFileInfo(info);
-            ListView_Playlist.SelectedItem = info;
-            ListView_Playlist.ScrollIntoView(info, ScrollIntoViewAlignment.Leading);
+            if (args.SelectedItem is MidiFileInfo info)
+            {
+                _midiPlayer.ChangeMidiFileInfo(info);
+                ListView_Playlist.SelectedItem = info;
+                ListView_Playlist.ScrollIntoView(info, ScrollIntoViewAlignment.Leading);
+            }
         }
+        catch { }
     }
 
 
@@ -361,6 +396,7 @@ public sealed partial class MainPage : Page
         {
             if (e != null)
             {
+                Logger.Info($"Midi file changed: {e.FileName}");
                 MidiFileName = e.FileName;
                 MidiCurrentMilliseconds = 0;
                 MidiTotalMilliseconds = MicroToMilli(e.TotalMicroseconds);
@@ -464,29 +500,33 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void Previous()
     {
-        var list = Playlist.SelectMany(x => x).ToList();
-        if (list.Any())
+        try
         {
-            MidiFileInfo? midi = null;
-            if (_midiPlayer.MidiFileInfo is null)
+            var list = Playlist.SelectMany(x => x).ToList();
+            if (list.Any())
             {
-                midi = list.Last();
-            }
-            else
-            {
-                var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
-                if (index <= 0)
+                MidiFileInfo? midi = null;
+                if (_midiPlayer.MidiFileInfo is null)
                 {
                     midi = list.Last();
                 }
                 else
                 {
-                    midi = list[index - 1];
+                    var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                    if (index <= 0)
+                    {
+                        midi = list.Last();
+                    }
+                    else
+                    {
+                        midi = list[index - 1];
+                    }
                 }
+                _midiPlayer.ChangeMidiFileInfo(midi);
             }
-            _midiPlayer.ChangeMidiFileInfo(midi);
+            PlayOrPause();
         }
-        PlayOrPause();
+        catch { }
     }
 
 
@@ -509,29 +549,33 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void Next()
     {
-        var list = Playlist.SelectMany(x => x).ToList();
-        if (list.Any())
+        try
         {
-            MidiFileInfo? midi = null;
-            if (_midiPlayer.MidiFileInfo is null)
+            var list = Playlist.SelectMany(x => x).ToList();
+            if (list.Any())
             {
-                midi = list.First();
-            }
-            else
-            {
-                var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
-                if (index >= list.Count - 1)
+                MidiFileInfo? midi = null;
+                if (_midiPlayer.MidiFileInfo is null)
                 {
                     midi = list.First();
                 }
                 else
                 {
-                    midi = list[index + 1];
+                    var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                    if (index >= list.Count - 1)
+                    {
+                        midi = list.First();
+                    }
+                    else
+                    {
+                        midi = list[index + 1];
+                    }
                 }
+                _midiPlayer.ChangeMidiFileInfo(midi);
             }
-            _midiPlayer.ChangeMidiFileInfo(midi);
+            PlayOrPause();
         }
-        PlayOrPause();
+        catch { }
     }
 
 
