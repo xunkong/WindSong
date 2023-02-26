@@ -44,8 +44,9 @@ jobs:
         Add-Content -Path $path -Value 'Download WinAppRuntime from the following link and install it, then run "WindSong.exe".';
         Add-Content -Path $path -Value (ConvertFrom-Json (Get-Content -Raw config.json)).WindowsAppRuntime;
         Add-Content -Path $path -Value "--------------------";
+        Add-Content -Path $path -Value "Build: $(Get-Date -AsUTC -Format "yyyy-MM-dd HH:mm:ss UTC")";
         Add-Content -Path $path -Value "Commit: ${{github.sha}}";
-        Add-Content -Path $path -Value "Build at: $(Get-Date -AsUTC -Format "yyyy-MM-dd HH:mm:ss UTC")";
+        Move-Item -Path update.ps1 -Destination "${{env.PublishFolder}}/update.ps1" -Force;
 
     - name: Test
       run: |
