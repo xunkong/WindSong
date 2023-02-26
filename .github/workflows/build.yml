@@ -62,6 +62,8 @@ jobs:
             Write-Error "Start failed!";
             exit -1;
         }
+        Start-Sleep -Seconds 3;
+        Remove-Item -Path ./${{env.PublishFolder}}/log -Force;
 
     - name: Config Ossutil
       if: github.event_name == 'push'
