@@ -252,7 +252,7 @@
                 <Button Width="36"
                         Height="32"
                         Padding="0"
-                        Command="{x:Bind PreviousCommand, Mode=OneTime}"
+                        Command="{x:Bind PlayPreviousCommand, Mode=OneTime}"
                         Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
                         ToolTipService.ToolTip="Previous">
                     <FontIcon Glyph="&#xE100;" />
@@ -271,7 +271,7 @@
                 <Button Width="36"
                         Height="32"
                         Padding="0"
-                        Command="{x:Bind NextCommand, Mode=OneTime}"
+                        Command="{x:Bind PlayNextCommand, Mode=OneTime}"
                         Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
                         ToolTipService.ToolTip="Next">
                     <FontIcon Glyph="&#xE101;" />
@@ -342,13 +342,57 @@
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
+                <Button Name="Button_RepeatMode"
+                        Width="36"
+                        Height="32"
+                        Padding="0"
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                                            Tag="RepeatOff"
+                                            Text="Repeat Off">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xF5E7;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                                            Tag="RepeatOne"
+                                            Text="Repeat One">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE1CC;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                                            Tag="RepeatAll"
+                                            Text="Repeat All">
+                                <MenuFlyoutItem.Icon>
+                                    <FontIcon Glyph="&#xE1CD;" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+                <ToggleButton Name="ToggleButton_PlayRandom"
+                              Width="36"
+                              Height="32"
+                              Padding="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              IsChecked="{x:Bind PlayRandom, Mode=TwoWay}"
+                              ToolTipService.ToolTip="Play Random">
+                    <ToggleButton.Resources>
+                        <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="DateTimePickerFlyoutButtonBackgroundPointerOver" />
+                    </ToggleButton.Resources>
+                    <FontIcon Glyph="&#xE14B;" />
+                </ToggleButton>
                 <ToggleButton Name="ToggleButton_Topmost"
                               Width="36"
                               Height="32"
                               Padding="0"
                               Background="Transparent"
                               BorderThickness="0"
-                              Click="ToggleButton_Topmost_Click"
+                              IsChecked="{x:Bind Topmost, Mode=TwoWay}"
                               ToolTipService.ToolTip="Topmost">
                     <ToggleButton.Resources>
                         <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="DateTimePickerFlyoutButtonBackgroundPointerOver" />

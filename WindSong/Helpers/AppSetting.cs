@@ -36,6 +36,19 @@ internal abstract class AppSetting
     }
 
 
+    public static RepeatMode RepeatMode
+    {
+        get => GetValue<RepeatMode>();
+        set => SetValue(value);
+    }
+
+
+    public static bool PlayRandom
+    {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
 
     public static string? SelectMidi
     {

@@ -385,8 +385,11 @@ public sealed partial class MainPage : Page
     private readonly DispatcherTimer _timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
 
     private readonly FontIcon PlayIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE102" };
-
     private readonly FontIcon PauseIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE103" };
+
+    private readonly FontIcon RepeatOffIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uF5E7" };
+    private readonly FontIcon RepeatOneIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE1CC" };
+    private readonly FontIcon RepeatAllIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE1CD" };
 
 
     private void InitializePlayerControl()
@@ -406,22 +409,56 @@ public sealed partial class MainPage : Page
         });
         _midiPlayer.PlayStateChanged += (_, e) => DispatcherQueue.TryEnqueue(() =>
         {
-            if (e == MidiPlayState.Start)
+            switch (e)
             {
-                _timer.Start();
-                Button_PlayOrPause.Content = PauseIcon;
-            }
-            else
-            {
-                _timer.Stop();
-                Button_PlayOrPause.Content = PlayIcon;
-                if (e == MidiPlayState.Stop)
-                {
+                case MidiPlayState.None:
+                    break;
+                case MidiPlayState.Start:
+                    _timer.Start();
+                    Button_PlayOrPause.Content = PauseIcon;
+                    break;
+                case MidiPlayState.Pause:
+                    _timer.Stop();
+                    Button_PlayOrPause.Content = PlayIcon;
+                    break;
+                case MidiPlayState.Stop:
+                    _timer.Stop();
+                    Button_PlayOrPause.Content = PlayIcon;
                     MidiCurrentMilliseconds = MidiTotalMilliseconds;
                     Slider_PlayerControl.Value = MidiTotalMilliseconds;
-                }
+                    switch (RepeatMode)
+                    {
+                        case RepeatMode.RepeatOff:
+                            break;
+                        case RepeatMode.RepeatOne:
+                            MidiCurrentMilliseconds = 0;
+                            Slider_PlayerControl.Value = 0;
+                            _midiPlayer.ChangeCurrentMilliseconds(0);
+                            PlayOrPause();
+                            break;
+                        case RepeatMode.RepeatAll:
+                            PlayNext();
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+                case MidiPlayState.Change:
+                    _timer.Stop();
+                    Button_PlayOrPause.Content = PlayIcon;
+                    break;
+                default:
+                    break;
             }
         });
+        InitializeInstrument();
+        InitializeRepeatMode();
+    }
+
+
+
+    private void InitializeInstrument()
+    {
         MidiNoteToKeyboard.InstrumentType = AppSetting.SelectInstrument;
         switch (MidiNoteToKeyboard.InstrumentType)
         {
@@ -442,6 +479,31 @@ public sealed partial class MainPage : Page
     }
 
 
+    private void InitializeRepeatMode()
+    {
+        repeatMode = AppSetting.RepeatMode;
+        switch (RepeatMode)
+        {
+            case RepeatMode.RepeatOff:
+                Button_RepeatMode.Content = RepeatOffIcon;
+                break;
+            case RepeatMode.RepeatOne:
+                Button_RepeatMode.Content = RepeatOneIcon;
+                break;
+            case RepeatMode.RepeatAll:
+                Button_RepeatMode.Content = RepeatAllIcon;
+                break;
+            default:
+                RepeatMode = RepeatMode.RepeatOff;
+                Button_RepeatMode.Content = RepeatOffIcon;
+                break;
+        }
+    }
+
+
+
+
+
 
     [ObservableProperty]
     private string midiFileName;
@@ -453,6 +515,34 @@ public sealed partial class MainPage : Page
 
     [ObservableProperty]
     private int midiTotalMilliseconds;
+
+
+
+    private RepeatMode repeatMode;
+
+    public RepeatMode RepeatMode
+    {
+        get => repeatMode;
+        set
+        {
+            repeatMode = value;
+            AppSetting.RepeatMode = value;
+        }
+    }
+
+
+    public bool PlayRandom
+    {
+        get => AppSetting.PlayRandom;
+        set => AppSetting.PlayRandom = value;
+    }
+
+
+    public bool Topmost
+    {
+        get => MainWindow.Current.TopMost;
+        set => MainWindow.Current.TopMost = value;
+    }
 
 
     private bool isPressed = false;
@@ -498,31 +588,43 @@ public sealed partial class MainPage : Page
 
 
     [RelayCommand]
-    private void Previous()
+    private void PlayPrevious()
     {
         try
         {
-            var list = Playlist.SelectMany(x => x).ToList();
-            if (list.Any())
+            if (PlayRandom)
             {
-                MidiFileInfo? midi = null;
-                if (_midiPlayer.MidiFileInfo is null)
+                var list = Playlist.SelectMany(x => x).OrderBy(x => Random.Shared.Next()).ToList();
+                var midi = list.FirstOrDefault();
+                if (midi != null)
                 {
-                    midi = list.Last();
+                    _midiPlayer.ChangeMidiFileInfo(midi);
                 }
-                else
+            }
+            else
+            {
+                var list = Playlist.SelectMany(x => x).ToList();
+                if (list.Any())
                 {
-                    var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
-                    if (index <= 0)
+                    MidiFileInfo? midi = null;
+                    if (_midiPlayer.MidiFileInfo is null)
                     {
                         midi = list.Last();
                     }
                     else
                     {
-                        midi = list[index - 1];
+                        var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                        if (index <= 0)
+                        {
+                            midi = list.Last();
+                        }
+                        else
+                        {
+                            midi = list[index - 1];
+                        }
                     }
+                    _midiPlayer.ChangeMidiFileInfo(midi);
                 }
-                _midiPlayer.ChangeMidiFileInfo(midi);
             }
             PlayOrPause();
         }
@@ -547,31 +649,43 @@ public sealed partial class MainPage : Page
 
 
     [RelayCommand]
-    private void Next()
+    private void PlayNext()
     {
         try
         {
-            var list = Playlist.SelectMany(x => x).ToList();
-            if (list.Any())
+            if (PlayRandom)
             {
-                MidiFileInfo? midi = null;
-                if (_midiPlayer.MidiFileInfo is null)
+                var list = Playlist.SelectMany(x => x).OrderBy(x => Random.Shared.Next()).ToList();
+                var midi = list.FirstOrDefault();
+                if (midi != null)
                 {
-                    midi = list.First();
+                    _midiPlayer.ChangeMidiFileInfo(midi);
                 }
-                else
+            }
+            else
+            {
+                var list = Playlist.SelectMany(x => x).ToList();
+                if (list.Any())
                 {
-                    var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
-                    if (index >= list.Count - 1)
+                    MidiFileInfo? midi = null;
+                    if (_midiPlayer.MidiFileInfo is null)
                     {
                         midi = list.First();
                     }
                     else
                     {
-                        midi = list[index + 1];
+                        var index = list.FindIndex(x => x == _midiPlayer.MidiFileInfo);
+                        if (index >= list.Count - 1)
+                        {
+                            midi = list.First();
+                        }
+                        else
+                        {
+                            midi = list[index + 1];
+                        }
                     }
+                    _midiPlayer.ChangeMidiFileInfo(midi);
                 }
-                _midiPlayer.ChangeMidiFileInfo(midi);
             }
             PlayOrPause();
         }
@@ -601,23 +715,35 @@ public sealed partial class MainPage : Page
     }
 
 
+    private void RadioMenuFlyoutItem_RepeatMode_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement ele)
+        {
+            if (ele.Tag is "RepeatOff")
+            {
+                RepeatMode = RepeatMode.RepeatOff;
+                Button_RepeatMode.Content = RepeatOffIcon;
+            }
+            if (ele.Tag is "RepeatOne")
+            {
+                RepeatMode = RepeatMode.RepeatOne;
+                Button_RepeatMode.Content = RepeatOneIcon;
+            }
+            if (ele.Tag is "RepeatAll")
+            {
+                RepeatMode = RepeatMode.RepeatAll;
+                Button_RepeatMode.Content = RepeatAllIcon;
+            }
+        }
+    }
+
+
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int MicroToMilli(long value)
     {
         return (int)(value / 1000);
     }
-
-
-
-    private void ToggleButton_Topmost_Click(object sender, RoutedEventArgs e)
-    {
-        MainWindow.Current.TopMost = ToggleButton_Topmost.IsChecked ?? false;
-    }
-
-
-
-
 
 
 

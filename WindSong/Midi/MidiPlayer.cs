@@ -243,3 +243,14 @@ public enum MidiPlayState
 
     Change,
 }
+
+
+public enum RepeatMode
+{
+
+    RepeatOff,
+
+    RepeatOne,
+
+    RepeatAll,
+}
