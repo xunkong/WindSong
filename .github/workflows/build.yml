@@ -63,7 +63,7 @@ jobs:
             exit -1;
         }
         Start-Sleep -Seconds 3;
-        Remove-Item -Path ./${{env.PublishFolder}}/log -Force;
+        Remove-Item -Path ./${{env.PublishFolder}}/log -Force -Recurse;
 
     - name: Config Ossutil
       if: github.event_name == 'push'
