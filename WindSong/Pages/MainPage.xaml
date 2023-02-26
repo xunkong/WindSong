@@ -66,7 +66,12 @@
         </Button>
 
 
-        <Grid Grid.Row="1">
+        <!--  Playlist  -->
+        <Grid Name="Grid_Playlist"
+              Grid.Row="1"
+              AllowDrop="True"
+              DragOver="Grid_Playlist_DragOver"
+              Drop="Grid_Playlist_Drop">
             <Grid.RowDefinitions>
                 <RowDefinition Height="60" />
                 <RowDefinition />
@@ -83,6 +88,7 @@
             <StackPanel Margin="0,0,12,0"
                         HorizontalAlignment="Right"
                         Orientation="Horizontal">
+                <!--  Open MIDI Folder Button  -->
                 <AppBarButton Command="{x:Bind OpenMidiFolderCommand, Mode=OneTime}"
                               Label="Open"
                               ToolTipService.ToolTip="Open MIDI Folder">
@@ -90,6 +96,7 @@
                         <FontIcon Glyph="&#xE838;" />
                     </AppBarButton.Icon>
                 </AppBarButton>
+                <!--  Locate Current Playing MIDI in Playlist  -->
                 <AppBarButton Command="{x:Bind LocateCurrentPlayingMidiCommand, Mode=OneTime}"
                               Label="Locate"
                               ToolTipService.ToolTip="Locate Playing MIDI">
@@ -99,6 +106,7 @@
                 </AppBarButton>
             </StackPanel>
 
+            <!--  Playlist  -->
             <SemanticZoom Grid.Row="1">
                 <SemanticZoom.ZoomedInView>
                     <ListView Name="ListView_Playlist"
@@ -201,21 +209,24 @@
                 </SemanticZoom.ZoomedOutView>
             </SemanticZoom>
 
-
-            <StackPanel Grid.Row="1"
+            <!--  MIDI Tooltip  -->
+            <StackPanel Name="StackPanel_MidiTooltip"
+                        Grid.Row="1"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Spacing="8"
-                        Visibility="{x:Bind ShowMidiTip}">
-                <TextBlock Text="Cannot find any MIDI file in the folder." TextWrapping="Wrap" />
+                        Visibility="Collapsed">
+                <TextBlock Text="Drag in MIDI files or" TextWrapping="Wrap" />
                 <TextBlock>
                     <Run Text="- Click &quot;Open&quot; button above" />
                     <LineBreak />
-                    <Run Text="- Save some MIDI files inside" />
+                    <Run Text="- Save MIDI files inside" />
                     <LineBreak />
                     <Run Text="- Restart the software" />
                 </TextBlock>
-                <HyperlinkButton Content="Where can I get MIDI file?" NavigateUri="https://github.com/xunkong/midi" />
+                <HyperlinkButton Margin="-12,0,0,0"
+                                 Content="Where can I get MIDI files?"
+                                 NavigateUri="https://github.com/xunkong/midi" />
             </StackPanel>
 
 
@@ -268,6 +279,7 @@
                 </Button>
             </StackPanel>
 
+
             <Grid Grid.Column="1" ColumnSpacing="8">
                 <Grid.RowDefinitions>
                     <RowDefinition />
@@ -277,9 +289,11 @@
                     <ColumnDefinition />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <!--  Midi File Name  -->
                 <TextBlock VerticalAlignment="Center"
                            Text="{x:Bind MidiFileName}"
                            TextTrimming="CharacterEllipsis" />
+                <!--  Play Progress  -->
                 <TextBlock Grid.Column="1"
                            HorizontalAlignment="Right"
                            VerticalAlignment="Center">
@@ -287,6 +301,7 @@
                     <Run Text="/" />
                     <Run Text="{x:Bind MidiTotalMilliseconds, Converter={StaticResource PlayerSliderThumbToolTipConverter}}" />
                 </TextBlock>
+                <!--  Play Slider  -->
                 <Slider Name="Slider_PlayerControl"
                         Grid.Row="1"
                         Grid.ColumnSpan="2"

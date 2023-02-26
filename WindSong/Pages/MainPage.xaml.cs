@@ -16,6 +16,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Graphics;
 using WindSong.Helpers;
@@ -71,8 +72,13 @@ public sealed partial class MainPage : Page
 
 
 
-    public void Navigate(Type sourcePageType, object? param = null, NavigationTransitionInfo? infoOverride = null)
+    public void Navigate(Type? sourcePageType, object? param = null, NavigationTransitionInfo? infoOverride = null)
     {
+        if (sourcePageType is null)
+        {
+            MainPageFrame.Content = null;
+            return;
+        }
         if (param is null)
         {
             MainPageFrame.Navigate(sourcePageType);
@@ -120,61 +126,61 @@ public sealed partial class MainPage : Page
     private void LoadMidiPlaylist()
     {
         var midiFolder = Path.Combine(AppContext.BaseDirectory, "midi");
-        if (!Directory.Exists(midiFolder))
+        if (Directory.Exists(midiFolder))
         {
-            return;
-        }
-        var files = Directory.GetFiles(midiFolder, "*.mid", SearchOption.TopDirectoryOnly);
-        var collection = new MidiFolder() { FolderName = "#" };
-        foreach (var file in files)
-        {
-            try
-            {
-                collection.Add(MidiReader.ReadFile(file));
-            }
-            catch { }
-        }
-        if (collection.Any())
-        {
-            Playlist.Add(collection);
-        }
-        var dirs = Directory.GetDirectories(midiFolder);
-        foreach (var dir in dirs)
-        {
-            var col = new MidiFolder() { FolderName = Path.GetFileName(dir)! };
-            foreach (var file in Directory.GetFiles(dir, "*.mid", SearchOption.AllDirectories))
+            var files = Directory.GetFiles(midiFolder, "*.mid", SearchOption.TopDirectoryOnly);
+            var collection = new MidiFolder() { FolderName = "#" };
+            foreach (var file in files)
             {
                 try
                 {
-                    col.Add(MidiReader.ReadFile(file));
+                    collection.Add(MidiReader.ReadFile(file));
                 }
                 catch { }
             }
-            Playlist.Add(col);
-        }
-        var lastMidi = AppSetting.SelectMidi;
-        if (File.Exists(lastMidi))
-        {
-            var path = Path.GetFullPath(lastMidi);
-            var midi = Playlist.SelectMany(x => x).FirstOrDefault(x => x.FilePath == path);
-            if (midi != null)
+            if (collection.Any())
             {
-                _midiPlayer.ChangeMidiFileInfo(midi);
+                Playlist.Add(collection);
+            }
+            var dirs = Directory.GetDirectories(midiFolder);
+            foreach (var dir in dirs)
+            {
+                var col = new MidiFolder() { FolderName = Path.GetFileName(dir)! };
+                foreach (var file in Directory.GetFiles(dir, "*.mid", SearchOption.AllDirectories))
+                {
+                    try
+                    {
+                        col.Add(MidiReader.ReadFile(file));
+                    }
+                    catch { }
+                }
+                Playlist.Add(col);
+            }
+            var lastMidi = AppSetting.SelectMidi;
+            if (File.Exists(lastMidi))
+            {
+                var path = Path.GetFullPath(lastMidi);
+                var midi = Playlist.SelectMany(x => x).FirstOrDefault(x => x.FilePath == path);
+                if (midi != null)
+                {
+                    _midiPlayer.ChangeMidiFileInfo(midi);
+                }
+            }
+            else
+            {
+                var midi = Playlist.SelectMany(x => x).FirstOrDefault();
+                if (midi != null)
+                {
+                    _midiPlayer.ChangeMidiFileInfo(midi);
+                }
             }
         }
-        else
+        if (!(Playlist?.Any() ?? false))
         {
-            var midi = Playlist.SelectMany(x => x).FirstOrDefault();
-            if (midi != null)
-            {
-                _midiPlayer.ChangeMidiFileInfo(midi);
-            }
+            StackPanel_MidiTooltip.Visibility = Visibility.Visible;
         }
     }
 
-
-
-    public bool ShowMidiTip => !(Playlist?.Any() ?? false);
 
 
 
@@ -185,8 +191,8 @@ public sealed partial class MainPage : Page
             if (ele.DataContext is MidiFileInfo info)
             {
                 ListView_Playlist.SelectedItem = info;
-                MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
-                MainPage.Current.MidiPlayer.Play();
+                MidiPlayer.ChangeMidiFileInfo(info);
+                MidiPlayer.Play();
             }
         }
     }
@@ -198,7 +204,7 @@ public sealed partial class MainPage : Page
         {
             if (ele.DataContext is MidiFileInfo info)
             {
-                MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
+                MidiPlayer.ChangeMidiFileInfo(info);
             }
         }
     }
@@ -227,7 +233,7 @@ public sealed partial class MainPage : Page
     [RelayCommand]
     private void LocateCurrentPlayingMidi()
     {
-        var playing = MainPage.Current.MidiPlayer.MidiFileInfo;
+        var playing = MidiPlayer.MidiFileInfo;
         if (playing != null)
         {
             ListView_Playlist.SelectedItem = playing;
@@ -235,6 +241,45 @@ public sealed partial class MainPage : Page
         }
     }
 
+
+
+    private void Grid_Playlist_DragOver(object sender, DragEventArgs e)
+    {
+        e.AcceptedOperation = DataPackageOperation.Copy;
+    }
+
+    private async void Grid_Playlist_Drop(object sender, DragEventArgs e)
+    {
+        if (e.DataView.Contains(StandardDataFormats.StorageItems))
+        {
+            var items = await e.DataView.GetStorageItemsAsync();
+            if (items.Count > 0)
+            {
+                var files = items.Where(x => x.Name.ToLower().EndsWith(".mid") || x.Name.ToLower().EndsWith(".midi")).ToList();
+                if (files.Count > 0)
+                {
+                    var midiFolder = Path.Combine(AppContext.BaseDirectory, "midi");
+                    Directory.CreateDirectory(midiFolder);
+                    var list = Playlist.FirstOrDefault();
+                    if (list is null)
+                    {
+                        list = new MidiFolder { FolderName = "#" };
+                        Playlist.Add(list);
+                    }
+                    foreach (var file in files)
+                    {
+                        var midi = MidiReader.ReadFile(file.Path);
+                        File.Copy(file.Path, Path.Combine(midiFolder, file.Name), true);
+                        list.Add(midi);
+                    }
+                    if (list.Any())
+                    {
+                        StackPanel_MidiTooltip.Visibility = Visibility.Collapsed;
+                    }
+                }
+            }
+        }
+    }
 
 
 
