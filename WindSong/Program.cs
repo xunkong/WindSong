@@ -1,4 +1,6 @@
-﻿namespace WindSong;
+﻿global using Logger = WindSong.Helpers.Logger;
+
+namespace WindSong;
 
 public static class Program
 {
@@ -10,6 +12,8 @@ public static class Program
     [global::System.STAThreadAttribute]
     static void Main(string[] args)
     {
+        Logger.Initialize();
+
         XamlCheckProcessRequirements();
 
         global::WinRT.ComWrappersSupport.InitializeComWrappers();
@@ -19,5 +23,7 @@ public static class Program
             global::System.Threading.SynchronizationContext.SetSynchronizationContext(context);
             new App();
         });
+
+        Logger.CloseAndFlush();
     }
 }
