@@ -3,7 +3,6 @@
 
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using CommunityToolkit.Mvvm.Messaging;
 using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
@@ -13,13 +12,13 @@ using Microsoft.UI.Xaml.Media.Animation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Windows.Foundation;
 using Windows.Graphics;
 using WindSong.Helpers;
-using WindSong.Messages;
 using WindSong.Midi;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -54,7 +53,6 @@ public sealed partial class MainPage : Page
         this.InitializeComponent();
         InitializePlayerControl();
         LoadMidiPlaylist();
-        Navigate(typeof(PlaylistPage));
     }
 
 
@@ -176,6 +174,70 @@ public sealed partial class MainPage : Page
 
 
 
+    public bool ShowMidiTip => !(Playlist?.Any() ?? false);
+
+
+
+    private void Button_Play_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is FrameworkElement ele)
+        {
+            if (ele.DataContext is MidiFileInfo info)
+            {
+                ListView_Playlist.SelectedItem = info;
+                MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
+                MainPage.Current.MidiPlayer.Play();
+            }
+        }
+    }
+
+
+    private void Grid_MidiFileInfo_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+    {
+        if (sender is FrameworkElement ele)
+        {
+            if (ele.DataContext is MidiFileInfo info)
+            {
+                MainPage.Current.MidiPlayer.ChangeMidiFileInfo(info);
+            }
+        }
+    }
+
+
+    [RelayCommand]
+    private void OpenMidiFolder()
+    {
+        try
+        {
+            var folder = Path.Join(AppContext.BaseDirectory, "midi");
+            Directory.CreateDirectory(folder);
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = folder,
+                UseShellExecute = true,
+            });
+        }
+        catch (Exception ex)
+        {
+
+        }
+    }
+
+
+    [RelayCommand]
+    private void LocateCurrentPlayingMidi()
+    {
+        var playing = MainPage.Current.MidiPlayer.MidiFileInfo;
+        if (playing != null)
+        {
+            ListView_Playlist.SelectedItem = playing;
+            ListView_Playlist.ScrollIntoView(playing, ScrollIntoViewAlignment.Leading);
+        }
+    }
+
+
+
+
     #endregion
 
 
@@ -221,7 +283,8 @@ public sealed partial class MainPage : Page
         if (args.SelectedItem is MidiFileInfo info)
         {
             _midiPlayer.ChangeMidiFileInfo(info);
-            WeakReferenceMessenger.Default.Send(new ChoseSearchResultMessage(info));
+            ListView_Playlist.SelectedItem = info;
+            ListView_Playlist.ScrollIntoView(info, ScrollIntoViewAlignment.Leading);
         }
     }
 

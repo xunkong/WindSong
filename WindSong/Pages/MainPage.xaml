@@ -13,6 +13,11 @@
       SizeChanged="Page_SizeChanged"
       mc:Ignorable="d">
 
+    <Page.Resources>
+        <CollectionViewSource x:Name="PlaylistSource"
+                              IsSourceGrouped="True"
+                              Source="{x:Bind Playlist}" />
+    </Page.Resources>
 
 
     <Grid>
@@ -33,17 +38,16 @@
                         MaxWidth="400"
                         Margin="160,0,160,0"
                         VerticalAlignment="Center"
-                        DisplayMemberPath="FileName"
                         PlaceholderText="Search..."
                         QueryIcon="Find"
                         SuggestionChosen="SearchBox_SuggestionChosen"
                         TextChanged="SearchBox_TextChanged"
                         TextMemberPath="FileName">
-            <AutoSuggestBox.ItemContainerStyle>
-                <Style BasedOn="{StaticResource DefaultListViewItemStyle}" TargetType="ListViewItem">
-                    <Setter Property="FontSize" Value="12" />
-                </Style>
-            </AutoSuggestBox.ItemContainerStyle>
+            <AutoSuggestBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock FontSize="12" Text="{Binding FileName}" />
+                </DataTemplate>
+            </AutoSuggestBox.ItemTemplate>
         </AutoSuggestBox>
 
 
@@ -60,6 +64,162 @@
                 </MenuFlyout>
             </Button.Flyout>
         </Button>
+
+
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60" />
+                <RowDefinition />
+            </Grid.RowDefinitions>
+
+            <StackPanel Margin="16,0,0,0"
+                        VerticalAlignment="Center"
+                        Orientation="Horizontal"
+                        Spacing="12">
+                <FontIcon Glyph="&#xE142;" />
+                <TextBlock FontSize="20" Text="Playlist" />
+            </StackPanel>
+
+            <StackPanel Margin="0,0,12,0"
+                        HorizontalAlignment="Right"
+                        Orientation="Horizontal">
+                <AppBarButton Command="{x:Bind OpenMidiFolderCommand, Mode=OneTime}"
+                              Label="Open"
+                              ToolTipService.ToolTip="Open MIDI Folder">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE838;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+                <AppBarButton Command="{x:Bind LocateCurrentPlayingMidiCommand, Mode=OneTime}"
+                              Label="Locate"
+                              ToolTipService.ToolTip="Locate Playing MIDI">
+                    <AppBarButton.Icon>
+                        <FontIcon Glyph="&#xE81D;" />
+                    </AppBarButton.Icon>
+                </AppBarButton>
+            </StackPanel>
+
+            <SemanticZoom Grid.Row="1">
+                <SemanticZoom.ZoomedInView>
+                    <ListView Name="ListView_Playlist"
+                              Padding="0,0,8,0"
+                              ItemsSource="{x:Bind PlaylistSource.View}">
+                        <ListView.GroupStyle>
+                            <GroupStyle>
+                                <GroupStyle.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock FontWeight="SemiBold">
+                                            <Run Text="{Binding FolderName}" />
+                                            <Run Text="(" /><Run Text="{Binding Count}" /><Run Text=")" />
+                                        </TextBlock>
+                                    </DataTemplate>
+                                </GroupStyle.HeaderTemplate>
+                            </GroupStyle>
+                        </ListView.GroupStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Name="Grid_MidiFileInfo"
+                                      Background="Transparent"
+                                      ColumnSpacing="12"
+                                      DoubleTapped="Grid_MidiFileInfo_DoubleTapped"
+                                      IsDoubleTapEnabled="True">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock VerticalAlignment="Center"
+                                               Text="{Binding FileName}"
+                                               TextTrimming="CharacterEllipsis" />
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal"
+                                                Spacing="4">
+                                        <TextBlock Margin="0,0,4,0"
+                                                   VerticalAlignment="Center"
+                                                   Text="{Binding TimeString}" />
+                                        <Button Name="Button_Play"
+                                                Width="32"
+                                                Height="28"
+                                                Padding="0"
+                                                VerticalAlignment="Center"
+                                                Click="Button_Play_Click"
+                                                Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                                            <FontIcon FontSize="16" Glyph="&#xE102;" />
+                                        </Button>
+                                        <Button Width="32"
+                                                Height="28"
+                                                Padding="0"
+                                                VerticalAlignment="Center"
+                                                Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                                            <FontIcon FontSize="16" Glyph="&#xE946;" />
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <StackPanel>
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   FontSize="12"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Text="Note Count" />
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   FontSize="14"
+                                                                   Text="{Binding NoteCount}" />
+                                                        <TextBlock Margin="0,4,0,0"
+                                                                   HorizontalAlignment="Center"
+                                                                   FontSize="12"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Text="Hit Rate - Windsong" />
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   FontSize="14"
+                                                                   Text="{Binding HitRate_Windsong}" />
+                                                        <TextBlock Margin="0,4,0,0"
+                                                                   HorizontalAlignment="Center"
+                                                                   FontSize="12"
+                                                                   Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                                                   Text="Hit Rate - Vintage" />
+                                                        <TextBlock HorizontalAlignment="Center"
+                                                                   FontSize="14"
+                                                                   Text="{Binding HitRate_Vintage}" />
+                                                    </StackPanel>
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
+                                    </StackPanel>
+                                </Grid>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </SemanticZoom.ZoomedInView>
+                <SemanticZoom.ZoomedOutView>
+                    <ListView ItemsSource="{x:Bind PlaylistSource.View.CollectionGroups}" SelectionMode="None">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock FontWeight="SemiBold">
+                                    <Run Text="{Binding Group.FolderName}" />
+                                    <Run Text="(" /><Run Text="{Binding Group.Count}" /><Run Text=")" />
+                                </TextBlock>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </SemanticZoom.ZoomedOutView>
+            </SemanticZoom>
+
+
+            <StackPanel Grid.Row="1"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center"
+                        Spacing="8"
+                        Visibility="{x:Bind ShowMidiTip}">
+                <TextBlock Text="Cannot find any MIDI file in the folder." TextWrapping="Wrap" />
+                <TextBlock>
+                    <Run Text="- Click &quot;Open&quot; button above" />
+                    <LineBreak />
+                    <Run Text="- Save some MIDI files inside" />
+                    <LineBreak />
+                    <Run Text="- Restart the software" />
+                </TextBlock>
+                <HyperlinkButton Content="Where can I get MIDI file?" NavigateUri="https://github.com/xunkong/midi" />
+            </StackPanel>
+
+
+        </Grid>
 
 
         <Frame Name="MainPageFrame" Grid.Row="1" />
