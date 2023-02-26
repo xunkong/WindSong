@@ -45,6 +45,14 @@ internal abstract class AppSetting
 
 
 
+    public static bool Topmost
+    {
+        get => GetValue<bool>();
+        set => SetValue(value);
+    }
+
+
+
 
     [StructLayout(LayoutKind.Explicit)]
     private struct WindowRect

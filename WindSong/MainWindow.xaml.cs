@@ -47,6 +47,28 @@ public sealed partial class MainWindow : Window
     public HotkeyManager HotKeyManager { get; private set; }
 
 
+    private bool topmost;
+
+    public bool TopMost
+    {
+        get => topmost;
+        set
+        {
+            if (topmost != value)
+            {
+                User32.GetWindowRect(HWND, out var rect);
+                User32.SetWindowPos(HWND, value ? -1 : -2, rect.X, rect.Y, rect.Width, rect.Height, 0);
+                AppSetting.Topmost = value;
+                topmost = value;
+                Logger.Info($"Topmost changed: {value}");
+            }
+        }
+
+    }
+
+
+
+
     public MainWindow()
     {
         Current = this;

@@ -610,6 +610,10 @@ public sealed partial class MainPage : Page
 
 
 
+    private void ToggleButton_Topmost_Click(object sender, RoutedEventArgs e)
+    {
+        MainWindow.Current.TopMost = ToggleButton_Topmost.IsChecked ?? false;
+    }
 
 
 

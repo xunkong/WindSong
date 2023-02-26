@@ -7,7 +7,6 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
       xmlns:local="using:WindSong.Pages"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-      xmlns:primitives="using:Microsoft.UI.Xaml.Controls.Primitives"
       x:DefaultBindMode="OneWay"
       NavigationCacheMode="Required"
       SizeChanged="Page_SizeChanged"
@@ -321,7 +320,8 @@
                 <Button Width="36"
                         Height="32"
                         Padding="0"
-                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+                        ToolTipService.ToolTip="Select Instrument">
                     <FontIcon Glyph="&#xEC4F;" />
                     <Button.Flyout>
                         <MenuFlyout>
@@ -342,9 +342,24 @@
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
+                <ToggleButton Name="ToggleButton_Topmost"
+                              Width="36"
+                              Height="32"
+                              Padding="0"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              Click="ToggleButton_Topmost_Click"
+                              ToolTipService.ToolTip="Topmost">
+                    <ToggleButton.Resources>
+                        <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="DateTimePickerFlyoutButtonBackgroundPointerOver" />
+                    </ToggleButton.Resources>
+                    <FontIcon Glyph="&#xE8A7;" />
+                </ToggleButton>
             </StackPanel>
 
         </Grid>
+
+
 
     </Grid>
 </Page>

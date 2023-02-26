@@ -32,7 +32,7 @@ internal abstract class Logger
                 sb.AppendLine();
             }
             sb.AppendLine($"Admin: {AdminHelper.IsAdmin}");
-            sb.AppendLine($"Time: {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff}");
+            sb.AppendLine($"Time: {DateTimeOffset.Now:yyyy-MM-dd HH:mm:ss.fff zzz}");
             sb.AppendLine($"OSVersion: {Environment.OSVersion}");
             sb.AppendLine($"CommandLine: {Environment.CommandLine}");
             Info(sb.ToString());
