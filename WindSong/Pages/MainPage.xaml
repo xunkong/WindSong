@@ -316,29 +316,36 @@
 
             <StackPanel Grid.Column="2"
                         Orientation="Horizontal"
-                        Spacing="8">
-                <Button Width="36"
+                        Spacing="4">
+                <Button Name="Button_InstrumentType"
+                        Width="36"
                         Height="32"
-                        Padding="0"
+                        Padding="2"
                         Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
                         ToolTipService.ToolTip="Select Instrument">
-                    <FontIcon Glyph="&#xEC4F;" />
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem IsEnabled="False" Text="Select Instrument" />
-                            <MenuFlyoutSeparator />
-                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Windsong"
-                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
-                                                 Tag="Windsong"
-                                                 Text="Windsong Lyre" />
-                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Floral"
-                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
-                                                 Tag="Floral"
-                                                 Text="Floral Zither" />
-                            <RadioMenuFlyoutItem Name="RadioMenuFlyoutItem_Vintage"
-                                                 Click="RadioMenuFlyoutItem_ChangeInstrument_Click"
-                                                 Tag="Vintage"
-                                                 Text="Vintage Lyre" />
+                            <MenuFlyoutItem Click="MenuFlyoutItem_ChangeInstrument_Click"
+                                            Tag="Windsong"
+                                            Text="Windsong Lyre">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="ms-appx:///Assets/Images/UI_ItemIcon_220025.png" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="MenuFlyoutItem_ChangeInstrument_Click"
+                                            Tag="Floral"
+                                            Text="Floral Zither">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="ms-appx:///Assets/Images/UI_ItemIcon_220044.png" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
+                            <MenuFlyoutItem Click="MenuFlyoutItem_ChangeInstrument_Click"
+                                            Tag="Vintage"
+                                            Text="Vintage Lyre">
+                                <MenuFlyoutItem.Icon>
+                                    <ImageIcon Source="ms-appx:///Assets/Images/UI_ItemIcon_220066.png" />
+                                </MenuFlyoutItem.Icon>
+                            </MenuFlyoutItem>
                         </MenuFlyout>
                     </Button.Flyout>
                 </Button>
@@ -346,24 +353,25 @@
                         Width="36"
                         Height="32"
                         Padding="0"
-                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}">
+                        Style="{ThemeResource DateTimePickerFlyoutButtonStyle}"
+                        ToolTipService.ToolTip="Repeat Mode">
                     <Button.Flyout>
                         <MenuFlyout>
-                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                            <MenuFlyoutItem Click="MenuFlyoutItem_RepeatMode_Click"
                                             Tag="RepeatOff"
                                             Text="Repeat Off">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xF5E7;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                            <MenuFlyoutItem Click="MenuFlyoutItem_RepeatMode_Click"
                                             Tag="RepeatOne"
                                             Text="Repeat One">
                                 <MenuFlyoutItem.Icon>
                                     <FontIcon Glyph="&#xE1CC;" />
                                 </MenuFlyoutItem.Icon>
                             </MenuFlyoutItem>
-                            <MenuFlyoutItem Click="RadioMenuFlyoutItem_RepeatMode_Click"
+                            <MenuFlyoutItem Click="MenuFlyoutItem_RepeatMode_Click"
                                             Tag="RepeatAll"
                                             Text="Repeat All">
                                 <MenuFlyoutItem.Icon>
@@ -394,9 +402,6 @@
                               BorderThickness="0"
                               IsChecked="{x:Bind Topmost, Mode=TwoWay}"
                               ToolTipService.ToolTip="Topmost">
-                    <ToggleButton.Resources>
-                        <StaticResource x:Key="ToggleButtonBackgroundPointerOver" ResourceKey="DateTimePickerFlyoutButtonBackgroundPointerOver" />
-                    </ToggleButton.Resources>
                     <FontIcon Glyph="&#xE8A7;" />
                 </ToggleButton>
             </StackPanel>

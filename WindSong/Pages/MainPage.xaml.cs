@@ -9,6 +9,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -391,6 +392,10 @@ public sealed partial class MainPage : Page
     private readonly FontIcon RepeatOneIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE1CC" };
     private readonly FontIcon RepeatAllIcon = new FontIcon { FontFamily = new FontFamily("Segoe Fluent Icons"), Glyph = "\uE1CD" };
 
+    private readonly ImageIcon WindsongIcon = new ImageIcon { Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/UI_ItemIcon_220025.png")) };
+    private readonly ImageIcon FloralIcon = new ImageIcon { Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/UI_ItemIcon_220044.png")) };
+    private readonly ImageIcon VintagegIcon = new ImageIcon { Source = new BitmapImage(new Uri("ms-appx:///Assets/Images/UI_ItemIcon_220066.png")) };
+
 
     private void InitializePlayerControl()
     {
@@ -463,17 +468,17 @@ public sealed partial class MainPage : Page
         switch (MidiNoteToKeyboard.InstrumentType)
         {
             case InstrumentType.WindsongLyre:
-                RadioMenuFlyoutItem_Windsong.IsChecked = true;
+                Button_InstrumentType.Content = WindsongIcon;
                 break;
             case InstrumentType.FloralZither:
-                RadioMenuFlyoutItem_Floral.IsChecked = true;
+                Button_InstrumentType.Content = FloralIcon;
                 break;
             case InstrumentType.VintageLyre:
-                RadioMenuFlyoutItem_Vintage.IsChecked = true;
+                Button_InstrumentType.Content = VintagegIcon;
                 break;
             default:
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.WindsongLyre;
-                RadioMenuFlyoutItem_Windsong.IsChecked = true;
+                Button_InstrumentType.Content = WindsongIcon;
                 break;
         }
     }
@@ -694,28 +699,31 @@ public sealed partial class MainPage : Page
 
 
 
-    private void RadioMenuFlyoutItem_ChangeInstrument_Click(object sender, RoutedEventArgs e)
+    private void MenuFlyoutItem_ChangeInstrument_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement ele)
         {
             if (ele.Tag is "Windsong")
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.WindsongLyre;
+                Button_InstrumentType.Content = WindsongIcon;
             }
             if (ele.Tag is "Floral")
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.FloralZither;
+                Button_InstrumentType.Content = FloralIcon;
             }
             if (ele.Tag is "Vintage")
             {
                 MidiNoteToKeyboard.InstrumentType = InstrumentType.VintageLyre;
+                Button_InstrumentType.Content = VintagegIcon;
             }
             AppSetting.SelectInstrument = MidiNoteToKeyboard.InstrumentType;
         }
     }
 
 
-    private void RadioMenuFlyoutItem_RepeatMode_Click(object sender, RoutedEventArgs e)
+    private void MenuFlyoutItem_RepeatMode_Click(object sender, RoutedEventArgs e)
     {
         if (sender is FrameworkElement ele)
         {

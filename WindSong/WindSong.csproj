@@ -28,4 +28,10 @@
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Content Update="Assets\**">
+	    <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+	  </Content>
+	</ItemGroup>
+
 </Project>
